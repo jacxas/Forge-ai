@@ -49,6 +49,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+  const [isDragging, setIsDragging] = useState(false);
   
   const bottomRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -163,7 +164,11 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    handleFile(file);
+  };
+
+  const handleFile = (file: File | null | undefined) => {
+    if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64Data = (reader.result as string).split(',')[1];
@@ -175,6 +180,33 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        handleFile(file);
+      }
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    handleFile(file);
   };
 
   const startCamera = async (forceFacingMode?: 'user' | 'environment') => {
@@ -429,10 +461,23 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       </header>
 
       <div 
-        className="flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar"
+        className={`flex-1 overflow-y-auto p-4 md:p-6 space-y-8 custom-scrollbar relative ${isDragging ? 'bg-blue-600/10' : ''}`}
         onScroll={handleScroll}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         ref={chatContainerRef}
       >
+        {isDragging && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-blue-600/20 backdrop-blur-[2px] pointer-events-none">
+            <div className="bg-blue-600 text-white px-8 py-4 rounded-3xl shadow-2xl flex flex-col items-center gap-4 animate-in zoom-in-95">
+              <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
+                <ImageIcon size={32} />
+              </div>
+              <p className="text-xl font-black uppercase tracking-wider">Suelta para adjuntar</p>
+            </div>
+          </div>
+        )}
         {filteredMessages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-8">
             <div className={`w-24 h-24 rounded-3xl mb-8 flex items-center justify-center text-white shadow-2xl ${activeBot.avatarColor} ${!searchTerm && 'animate-pulse'}`}>
@@ -785,6 +830,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
+                onPaste={handlePaste}
                 placeholder={attachedImage ? "¿Qué quieres saber de esta imagen?" : `Mensaje a ${activeBot.name}...`}
                 className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-slate-600 resize-none py-2.5 px-3 min-h-[44px] max-h-[150px]"
                 rows={1}
