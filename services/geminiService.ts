@@ -3,7 +3,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 import { ModelType, Message, GroundingChunk } from '../types';
 
 const getClient = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("API Key missing");
   return new GoogleGenAI({ apiKey });
 };
@@ -14,6 +14,8 @@ export const generateImage = async (prompt: string): Promise<string> => {
     model: ModelType.IMAGE,
     contents: { parts: [{ text: prompt }] },
   });
+
+  if (!response.candidates?.[0]?.content?.parts) throw new Error("No parts returned");
 
   for (const part of response.candidates[0].content.parts) {
     if (part.inlineData) {
@@ -109,7 +111,15 @@ export const streamResponse = async (
     onChunk(text);
 
     if (useSearch && response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-      onGrounding?.(response.candidates[0].groundingMetadata.groundingChunks);
+      const chunks = response.candidates[0].groundingMetadata.groundingChunks
+        .filter(c => !!c.web)
+        .map(c => ({
+          web: {
+            uri: c.web?.uri || "",
+            title: c.web?.title || ""
+          }
+        }));
+      onGrounding?.(chunks as GroundingChunk[]);
     }
 
     return text;
@@ -117,4 +127,20 @@ export const streamResponse = async (
     console.error("Error en Gemini API:", error);
     throw error;
   }
+};
+
+export const enhancePrompt = async (prompt: string, type: 'image' | 'video' | 'general'): Promise<string> => {
+  const ai = getClient();
+  const systemPrompt = `Eres un experto Ingeniero de Prompts. Tu tarea es recibir una idea simple y convertirla en un prompt técnico, detallado y profesional de alta calidad.
+    Si el tipo es 'image', crea un prompt visual descriptivo incluyendo iluminación, estilo artístico (fotorealista, digital, etc.) y composición.
+    Si el tipo es 'video', crea un prompt cinemático detallando movimiento de cámara, atmósfera y narrativa visual.
+    Responde ÚNICAMENTE con el prompt mejorado, sin introducciones ni explicaciones.`;
+
+  const response = await ai.models.generateContent({
+    model: ModelType.FLASH,
+    contents: [{ parts: [{ text: `Idea: ${prompt}\nTipo: ${type}` }] }],
+    config: { systemInstruction: systemPrompt }
+  });
+
+  return response.text || prompt;
 };

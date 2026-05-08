@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "accentColor": { "type": "string" },
+            "language": { "type": "string" }
+          }
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "Bot": {
+      "title": "Bot",
+      "description": "Custom AI bot configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "systemInstruction": { "type": "string" },
+        "model": { "type": "string" },
+        "avatarColor": { "type": "string" },
+        "icon": { "type": "string" },
+        "isDefault": { "type": "boolean" },
+        "useSearch": { "type": "boolean" },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "name", "model", "ownerId"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A single chat message",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "model"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "botId": { "type": "string" },
+        "isImage": { "type": "boolean" },
+        "imageUrl": { "type": "string" },
+        "attachedImage": {
+          "type": "object",
+          "properties": {
+            "data": { "type": "string" },
+            "mimeType": { "type": "string" }
+          }
+        }
+      },
+      "required": ["id", "role", "content", "timestamp", "botId"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Administrator record",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "addedAt": { "type": "number" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Global administrator list"
+    },
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Root user documentation"
+    },
+    "users/{userId}/bots/{botId}": {
+      "schema": "Bot",
+      "description": "User's custom bots"
+    },
+    "users/{userId}/sessions/{botId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Messages for a specific bot session"
+    }
+  }
+}

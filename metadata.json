@@ -1,5 +1,6 @@
 {
-  "name": "PoeClone AI",
+  "name": "Forge AI",
   "description": "A powerful, modular AI chat platform allowing users to create custom bots, switch between models, and manage concurrent conversations with a modern, responsive UI.",
-  "requestFramePermissions": []
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": []
 }

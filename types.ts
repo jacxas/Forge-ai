@@ -1,4 +1,17 @@
 
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string | null;
+  photoURL: string | null;
+  createdAt: number;
+  isAdmin?: boolean;
+  settings?: {
+    accentColor: string;
+    language: string;
+  };
+}
+
 export enum ModelType {
   FLASH_LITE = 'gemini-flash-lite-latest',
   FLASH = 'gemini-3-flash-preview',
@@ -46,6 +59,8 @@ export interface Bot {
   icon: string;
   isDefault?: boolean;
   useSearch?: boolean;
+  ownerId?: string;
+  createdAt?: number;
 }
 
 export interface ChatSession {
