@@ -57,6 +57,7 @@ export interface Bot {
   model: ModelType;
   avatarColor: string;
   icon: string;
+  avatarUrl?: string;
   isDefault?: boolean;
   useSearch?: boolean;
   ownerId?: string;
@@ -75,5 +76,6 @@ export interface BotFormData {
   model: ModelType;
   avatarColor: string;
   icon: string;
+  avatarUrl?: string;
   useSearch?: boolean;
 }

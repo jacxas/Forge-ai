@@ -7,8 +7,9 @@ import {
   Send, Paperclip, RotateCcw, Bot as BotIcon, Globe, 
   ExternalLink, Image as ImageIcon, Loader2, Volume2, 
   VolumeX, PlayCircle, BrainCircuit, Sparkles, X, Camera,
-  Mic, MicOff, Copy, Check, Trash2
+  Mic, MicOff, Copy, Check, Trash2, Zap
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Message, Bot, ModelType } from '../types';
 import * as Icons from 'lucide-react';
 import { textToSpeech, enhancePrompt } from '../services/geminiService';
@@ -331,8 +332,12 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           onClick={() => setShowBotDetails(true)}
           className="flex items-center gap-3 hover:bg-slate-900/50 p-1.5 pr-4 rounded-2xl transition-colors group text-left"
         >
-           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg ${activeBot.avatarColor} group-hover:scale-105 transition-transform`}>
-             {renderIcon(activeBot.icon)}
+           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg ${activeBot.avatarColor} group-hover:scale-105 transition-transform overflow-hidden`}>
+             {activeBot.avatarUrl ? (
+               <img src={activeBot.avatarUrl} alt={activeBot.name} className="w-full h-full object-cover" />
+             ) : (
+               renderIcon(activeBot.icon)
+             )}
            </div>
            <div>
              <h2 className="font-bold text-white leading-tight flex items-center gap-2">
@@ -433,8 +438,14 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         ) : (
           filteredMessages.map((msg) => (
             <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''} group`}>
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-1 shadow-md ${msg.role === 'user' ? 'bg-slate-700' : activeBot.avatarColor}`}>
-                {msg.role === 'user' ? <span className="text-sm font-bold">U</span> : renderIcon(activeBot.icon, 20)}
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-1 shadow-md overflow-hidden ${msg.role === 'user' ? 'bg-slate-700' : activeBot.avatarColor}`}>
+                {msg.role === 'user' ? (
+                  <span className="text-sm font-bold">U</span>
+                ) : activeBot.avatarUrl ? (
+                  <img src={activeBot.avatarUrl} alt={activeBot.name} className="w-full h-full object-cover" />
+                ) : (
+                  renderIcon(activeBot.icon, 20)
+                )}
               </div>
 
               <div className={`max-w-[85%] md:max-w-[75%] flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
@@ -577,17 +588,78 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             </div>
           ))
         )}
-        {isStreaming && (
-          <div className="flex gap-4 animate-in fade-in slide-in-from-bottom-2">
-             <div className={`w-9 h-9 rounded-xl ${activeBot.avatarColor} flex items-center justify-center`}>
-               <BrainCircuit className="text-white animate-pulse" size={20} />
-             </div>
-             <div className="bg-slate-900 border border-slate-800 rounded-2xl px-5 py-3 text-slate-400 text-sm flex items-center gap-3">
-               <Loader2 className="animate-spin text-blue-500" size={14} />
-               <span>{activeBot.name} está analizando tu petición...</span>
-             </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {isStreaming && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex gap-4"
+            >
+               <div className={`w-9 h-9 rounded-xl ${activeBot.avatarColor} flex items-center justify-center shadow-lg relative overflow-hidden`}>
+                 {activeBot.avatarUrl ? (
+                   <img src={activeBot.avatarUrl} alt={activeBot.name} className="w-full h-full object-cover" />
+                 ) : activeBot.model === ModelType.PRO ? (
+                   <>
+                     <motion.div 
+                        animate={{ 
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 1, 0.5]
+                        }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        className="absolute inset-0 bg-white/20"
+                     />
+                     <Zap className="text-white relative z-10" size={20} fill="currentColor" />
+                   </>
+                 ) : (
+                   <BrainCircuit className="text-white animate-pulse" size={20} />
+                 )}
+               </div>
+               
+               <div className={`rounded-2xl px-5 py-3 text-sm flex items-center gap-3 shadow-xl ${
+                 activeBot.model === ModelType.PRO 
+                   ? 'bg-gradient-to-r from-slate-900 to-indigo-950 border border-indigo-500/30 text-indigo-100' 
+                   : 'bg-slate-900 border border-slate-800 text-slate-400'
+               }`}>
+                 {activeBot.model === ModelType.PRO ? (
+                   <div className="flex items-center gap-4">
+                     <div className="flex gap-1.5">
+                       {[0, 1, 2].map((i) => (
+                         <motion.span
+                           key={i}
+                           animate={{ 
+                             scale: [1, 1.5, 1],
+                             opacity: [0.3, 1, 0.3],
+                             backgroundColor: ['#6366f1', '#a855f7', '#ec4899', '#6366f1'][i] 
+                           }}
+                           transition={{ 
+                             repeat: Infinity, 
+                             duration: 1.5, 
+                             delay: i * 0.2 
+                           }}
+                           className="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.5)]"
+                         />
+                       ))}
+                     </div>
+                     <div className="flex flex-col">
+                       <span className="font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                         {activeBot.name} (Gemini 3 Pro)
+                       </span>
+                       <span className="text-[10px] text-indigo-300/60 font-mono uppercase tracking-widest">
+                         Procesando razonamiento profundo...
+                       </span>
+                     </div>
+                   </div>
+                 ) : (
+                   <>
+                     <Loader2 className="animate-spin text-blue-500" size={14} />
+                     <span>{activeBot.name} está analizando tu petición...</span>
+                   </>
+                 )}
+               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div ref={bottomRef} />
       </div>
 
@@ -686,15 +758,52 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               {isListening ? <MicOff size={20} /> : <Mic size={20} />}
             </button>
             
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={attachedImage ? "¿Qué quieres saber de esta imagen?" : `Mensaje a ${activeBot.name}...`}
-              className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-slate-600 resize-none py-2.5 px-3 min-h-[44px] max-h-[150px]"
-              rows={1}
-            />
+            <div className="flex-1 flex flex-col">
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={attachedImage ? "¿Qué quieres saber de esta imagen?" : `Mensaje a ${activeBot.name}...`}
+                className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-slate-600 resize-none py-2.5 px-3 min-h-[44px] max-h-[150px]"
+                rows={1}
+              />
+              
+              <AnimatePresence>
+                {attachedImage && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex items-center gap-4 px-3 py-3 border-t border-slate-800/50 mt-1">
+                      <div className="relative group shrink-0">
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-blue-500/50 shadow-lg shadow-blue-500/10 bg-slate-950">
+                          <img src={attachedImage.preview} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                        <button 
+                          onClick={() => setAttachedImage(null)}
+                          className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors border border-slate-900 z-10"
+                          title="Eliminar imagen"
+                        >
+                          <X size={10} strokeWidth={3} />
+                        </button>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[9px] font-black text-blue-400 uppercase tracking-widest inline-flex items-center gap-1.5">
+                          <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+                          Imagen Lista
+                        </div>
+                        <p className="text-[10px] text-slate-500 font-mono">
+                          {attachedImage.mimeType.split('/')[1].toUpperCase()} • {(attachedImage.data.length * 0.75 / 1024).toFixed(0)} KB
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             <button 
               onClick={handleEnhance}
@@ -713,32 +822,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               <Send size={20} />
             </button>
           </div>
-
-          {attachedImage && (
-            <div className="flex items-center gap-4 animate-in slide-in-from-top-4 duration-300 px-2 py-1">
-              <div className="relative group shrink-0">
-                <div className="w-16 h-16 rounded-xl overflow-hidden border border-blue-500/50 shadow-lg shadow-blue-500/10 bg-slate-900">
-                  <img src={attachedImage.preview} alt="Preview" className="w-full h-full object-cover" />
-                </div>
-                <button 
-                  onClick={() => setAttachedImage(null)}
-                  className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors border border-slate-950"
-                  title="Eliminar imagen"
-                >
-                  <X size={10} strokeWidth={3} />
-                </button>
-              </div>
-              <div className="space-y-0.5">
-                <div className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] font-black text-blue-400 uppercase tracking-widest inline-flex items-center gap-1.5">
-                  <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
-                  Imagen Lista
-                </div>
-                <p className="text-[10px] text-slate-500 font-mono pl-1">
-                  {attachedImage.mimeType.split('/')[1].toUpperCase()} • {(attachedImage.data.length * 0.75 / 1024).toFixed(0)} KB
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

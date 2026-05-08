@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { BotCreator } from './components/BotCreator';
 import { MediaGallery } from './components/MediaGallery';
+import { VideoStudio } from './components/VideoStudio';
 import { DEFAULT_BOTS } from './constants';
 import { Bot, ChatSession, Message, BotFormData, ModelType, UserProfile } from './types';
 import { streamResponse, generateImage } from './services/geminiService';
@@ -38,7 +39,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState<'chat' | 'gallery'>('chat');
+  const [activeView, setActiveView] = useState<'chat' | 'gallery' | 'video'>('chat');
   const [bots, setBots] = useState<Bot[]>(DEFAULT_BOTS);
   const [activeBotId, setActiveBotId] = useState<string>(DEFAULT_BOTS[0].id);
   const [editingBot, setEditingBot] = useState<Bot | null>(null);
@@ -505,8 +506,10 @@ const App: React.FC = () => {
             onRegenerate={handleRegenerate}
             onDeleteMessage={handleDeleteMessage}
           />
-        ) : (
+        ) : activeView === 'gallery' ? (
           <MediaGallery userId={user?.uid || ''} />
+        ) : (
+          <VideoStudio />
         )}
       </main>
 

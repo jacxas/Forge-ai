@@ -11,6 +11,17 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email in ['jacxas@gmail.com', 'jacxas@gmai.com'] && request.auth.token.email_verified == true)
+      );
+    }
+
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
@@ -27,79 +38,67 @@ service cloud.firestore {
       return resource.data;
     }
 
-    function isAdmin() {
-      return isSignedIn() && (
-        (request.auth.token.email in ['jacxas@gmail.com', 'jacxas@gmai.com']) ||
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-      );
-    }
-
     // --- Validation Blueprints ---
-    
-    function isValidAdmin(data) {
-      return data.email is string && data.email.size() <= 256;
-    }
-
     function isValidUser(data) {
-      return data.uid == request.auth.uid
-        && data.email is string && data.email.size() <= 256
-        && (data.displayName == null || (data.displayName is string && data.displayName.size() <= 128))
-        && (data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 512));
+      return data.uid == request.auth.uid 
+        && data.email == request.auth.token.email
+        && data.displayName is string && data.displayName.size() <= 100
+        && (data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 1000))
+        && data.updatedAt is number
+        && (!data.keys().hasAll(['isAdmin']) || isAdmin());
     }
 
     function isValidBot(data) {
-      return data.id is string && data.id.size() <= 128
-        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
-        && data.description is string && data.description.size() <= 500
-        && data.systemInstruction is string && data.systemInstruction.size() <= 5000
-        && data.model is string
+      return data.id is string && data.id.size() <= 100
+        && data.name is string && data.name.size() <= 64
+        && data.description is string && data.description.size() <= 600
+        && data.systemInstruction is string && data.systemInstruction.size() <= 10000
+        && data.model is string && data.model.size() <= 100
+        && data.avatarColor is string && data.avatarColor.size() <= 50
+        && data.icon is string && data.icon.size() <= 50
+        && (data.avatarUrl == null || (data.avatarUrl is string && data.avatarUrl.size() <= 2000))
         && data.ownerId == request.auth.uid
-        && data.avatarColor is string
-        && data.icon is string;
+        && data.createdAt is number;
     }
 
     function isValidMessage(data) {
-      return data.id is string && data.id.size() <= 128
+      return data.id is string && data.id.size() <= 100
         && data.role in ['user', 'model']
-        && data.content is string && data.content.size() <= 100000
+        && (data.content is string && data.content.size() <= 50000)
         && data.timestamp is number
-        && data.botId is string
-        && (!('imageUrl' in data) || data.imageUrl is string)
-        && (!('isImage' in data) || data.isImage is bool)
-        && (!('attachedImage' in data) || (data.attachedImage is map && data.attachedImage.data is string));
+        && data.botId is string && data.botId.size() <= 100;
     }
 
-    // --- Collections ---
-
-    match /users/{userId} {
-      allow list: if isAdmin();
-      allow get: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId) && isValidUser(incoming());
-      allow update: if (isOwner(userId) && isValidUser(incoming()) && incoming().uid == userId) || isAdmin();
-
-      match /bots/{botId} {
-        allow list: if isOwner(userId) || isAdmin();
-        allow get: if isOwner(userId) || isAdmin();
-        allow create: if isOwner(userId) && isValidId(botId) && isValidBot(incoming());
-        allow update: if (isOwner(userId) && isValidBot(incoming()) && incoming().ownerId == existing().ownerId) || isAdmin();
-        allow delete: if isOwner(userId) || isAdmin();
-      }
-
-      match /sessions/{botId}/messages/{messageId} {
-        allow list: if isOwner(userId) || isAdmin();
-        allow get: if isOwner(userId) || isAdmin();
-        allow create: if (isOwner(userId) && isValidId(messageId) && isValidMessage(incoming())) || isAdmin();
-        allow update: if isAdmin(); // Messages are immutable for users, but admins can correct
-        allow delete: if isOwner(userId) || isAdmin();
-      }
-    }
+    // --- Match Rules ---
 
     match /admins/{adminId} {
-      allow get: if isAdmin();
-      allow list: if isAdmin();
-      allow create: if isAdmin() && isValidAdmin(incoming());
-      allow update: if isAdmin() && isValidAdmin(incoming());
-      allow delete: if isAdmin();
+      allow read: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if (isOwner(userId) || isAdmin()) 
+        && isValidUser(incoming())
+        && (isAdmin() || incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'updatedAt', 'settings']));
+    }
+
+    match /users/{userId}/bots/{botId} {
+      allow list: if isOwner(userId) || isAdmin();
+      allow get: if (isOwner(userId) || isAdmin()) && isValidId(botId);
+      allow create: if isOwner(userId) && isValidBot(incoming());
+      allow update: if (isOwner(userId) || isAdmin()) 
+        && isValidBot(incoming())
+        && (isAdmin() || (incoming().ownerId == existing().ownerId && incoming().createdAt == existing().createdAt));
+      allow delete: if (isOwner(userId) || isAdmin()) && isValidId(botId);
+    }
+
+    match /users/{userId}/sessions/{botId}/messages/{messageId} {
+      allow list: if isOwner(userId) || isAdmin();
+      allow get: if (isOwner(userId) || isAdmin()) && isValidId(messageId);
+      allow create: if isOwner(userId) && isValidMessage(incoming());
+      allow update: if isAdmin(); // Users shouldn't typically update messages once sent
+      allow delete: if (isOwner(userId) || isAdmin()) && isValidId(messageId);
     }
   }
 }

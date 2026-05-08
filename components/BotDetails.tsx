@@ -43,8 +43,12 @@ export const BotDetails: React.FC<BotDetailsProps> = ({ bot, isOpen, onClose }) 
               </button>
               
               <div className="absolute -bottom-10 left-8 p-1 bg-slate-900 rounded-3xl">
-                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white shadow-xl ${bot.avatarColor}`}>
-                  {renderIcon(bot.icon, 40)}
+                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-white shadow-xl overflow-hidden ${bot.avatarColor}`}>
+                  {bot.avatarUrl ? (
+                    <img src={bot.avatarUrl} alt={bot.name} className="w-full h-full object-cover" />
+                  ) : (
+                    renderIcon(bot.icon, 40)
+                  )}
                 </div>
               </div>
             </div>

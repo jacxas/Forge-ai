@@ -20,8 +20,8 @@ interface SidebarProps {
   onLogout: () => void;
   onOpenSettings: () => void;
   onOpenAdmin: () => void;
-  activeView: 'chat' | 'gallery';
-  onViewChange: (view: 'chat' | 'gallery') => void;
+  activeView: 'chat' | 'gallery' | 'video';
+  onViewChange: (view: 'chat' | 'gallery' | 'video') => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
@@ -77,16 +77,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex bg-slate-950 p-1 rounded-2xl border border-slate-800 shadow-inner">
             <button 
               onClick={() => onViewChange('chat')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all ${activeView === 'chat' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeView === 'chat' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
             >
-              <MessageSquare size={14} />
+              <MessageSquare size={13} />
               Chat
             </button>
             <button 
-              onClick={() => onViewChange('gallery')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all ${activeView === 'gallery' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+              onClick={() => onViewChange('video')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeView === 'video' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
             >
-              <Icons.Image size={14} />
+              <Icons.Video size={13} />
+              Video
+            </button>
+            <button 
+              onClick={() => onViewChange('gallery')}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeView === 'gallery' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+              <Icons.Image size={13} />
               Galería
             </button>
           </div>
@@ -133,9 +140,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <div className={`
                 w-10 h-10 rounded-full flex items-center justify-center shrink-0
-                ${bot.avatarColor} text-white shadow-sm
+                ${bot.avatarColor} text-white shadow-sm overflow-hidden
               `}>
-                {renderIcon(bot.icon)}
+                {bot.avatarUrl ? (
+                  <img src={bot.avatarUrl} alt={bot.name} className="w-full h-full object-cover" />
+                ) : (
+                  renderIcon(bot.icon)
+                )}
               </div>
               <div className="flex-1 overflow-hidden">
                 <div className="font-medium truncate">{bot.name}</div>
