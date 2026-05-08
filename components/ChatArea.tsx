@@ -67,28 +67,49 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   }, [messages, isStreaming]);
 
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    
+    if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
+      recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'es-ES';
 
       recognitionRef.current.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setInput(prev => prev + (prev ? ' ' : '') + transcript);
-        setIsListening(false);
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          setInput(prev => {
+            const lastChar = prev.trim().slice(-1);
+            const needsSpace = prev.length > 0 && lastChar !== '' && !['.', '!', '?'].includes(lastChar);
+            return prev + (needsSpace ? ' ' : '') + finalTranscript;
+          });
+        }
       };
 
       recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error', event.error);
         setIsListening(false);
+        if (event.error === 'not-allowed') {
+          alert("Acceso al micrófono denegado.");
+        }
       };
 
       recognitionRef.current.onend = () => {
         setIsListening(false);
       };
     }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, []);
 
   const handleScroll = () => {
@@ -808,10 +829,28 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
             <button 
               onClick={handleEnhance}
               disabled={!input.trim() || isEnhancing || isStreaming}
-              className={`p-2.5 transition-all rounded-xl h-11 w-11 flex items-center justify-center shrink-0 ${isEnhancing ? 'bg-purple-600 text-white animate-pulse' : 'text-slate-500 hover:text-purple-400 hover:bg-slate-800'}`}
+              className={`p-2.5 transition-all rounded-xl h-11 w-11 flex items-center justify-center shrink-0 relative group/enhance ${
+                isEnhancing 
+                  ? 'bg-purple-600 text-white animate-pulse' 
+                  : (activeBot.id === 'bot-artist' || activeBot.id === 'bot-video') && input.trim()
+                    ? 'text-purple-400 hover:text-purple-300 hover:bg-purple-500/10'
+                    : 'text-slate-500 hover:text-purple-400 hover:bg-slate-800'
+              }`}
               title="Optimizar prompt con IA"
             >
-              {isEnhancing ? <Loader2 size={20} className="animate-spin" /> : <Sparkles size={20} />}
+              {isEnhancing ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <>
+                  <Sparkles size={20} className={input.trim() && (activeBot.id === 'bot-artist' || activeBot.id === 'bot-video') ? 'animate-pulse' : ''} />
+                  {input.trim() && (activeBot.id === 'bot-artist' || activeBot.id === 'bot-video') && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                    </span>
+                  )}
+                </>
+              )}
             </button>
             
             <button 

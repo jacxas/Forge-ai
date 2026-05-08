@@ -76,21 +76,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-4">
           <div className="flex bg-slate-950 p-1 rounded-2xl border border-slate-800 shadow-inner">
             <button 
-              onClick={() => onViewChange('chat')}
+              onClick={() => {
+                onViewChange('chat');
+                onCloseMobile();
+              }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeView === 'chat' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
             >
               <MessageSquare size={13} />
               Chat
             </button>
             <button 
-              onClick={() => onViewChange('video')}
+              onClick={() => {
+                onViewChange('video');
+                onCloseMobile();
+              }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeView === 'video' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
             >
               <Icons.Video size={13} />
               Video
             </button>
             <button 
-              onClick={() => onViewChange('gallery')}
+              onClick={() => {
+                onViewChange('gallery');
+                onCloseMobile();
+              }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${activeView === 'gallery' ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
             >
               <Icons.Image size={13} />
