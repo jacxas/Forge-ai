@@ -379,84 +379,100 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-slate-950 relative">
-      <header className="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-950/90 backdrop-blur z-10 sticky top-0">
+    <div className="flex-1 flex flex-col h-full bg-transparent relative overflow-hidden font-sans">
+      <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 glass-light backdrop-blur-2xl z-20 sticky top-0">
         <button 
           onClick={() => setShowBotDetails(true)}
-          className="flex items-center gap-3 hover:bg-slate-900/50 p-1.5 pr-4 rounded-2xl transition-colors group text-left"
+          className="flex items-center gap-4 hover:bg-white/5 p-2 pr-6 rounded-[2rem] transition-all group text-left border border-transparent hover:border-white/5 active:scale-95"
         >
-           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg ${activeBot.avatarColor} group-hover:scale-105 transition-transform overflow-hidden`}>
+           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-2xl ${activeBot.avatarColor} group-hover:scale-105 transition-all duration-500 overflow-hidden relative`}>
              {activeBot.avatarUrl ? (
                <img src={activeBot.avatarUrl} alt={activeBot.name} className="w-full h-full object-cover" />
              ) : (
-               renderIcon(activeBot.icon)
+               renderIcon(activeBot.icon, 24)
              )}
+             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
            </div>
            <div>
-             <h2 className="font-bold text-white leading-tight flex items-center gap-2">
+             <h2 className="font-black text-white leading-tight flex items-center gap-2 text-lg tracking-tight font-display">
                {activeBot.name}
-               <Icons.ChevronDown size={14} className="text-slate-500" />
+               <Icons.ChevronDown size={14} className="text-slate-500 group-hover:text-white transition-colors" />
              </h2>
              <div className="flex items-center gap-2">
-               <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono uppercase tracking-wider">
-                 {activeBot.model.split('-')[1] || 'AI'}
+               <span className="text-[9px] bg-white/10 text-slate-300 border border-white/10 px-2 py-0.5 rounded-full font-mono uppercase tracking-[0.2em] font-black">
+                 {activeBot.model.split('-')[1] || 'PREMIUM'}
                </span>
+               <div className="flex gap-0.5">
+                 {[0, 1, 2].map(i => (
+                   <div key={i} className="w-1 h-1 rounded-full bg-green-500/40"></div>
+                 ))}
+               </div>
              </div>
            </div>
         </button>
-        <div className="flex items-center gap-2">
-          {showSearch && (
-            <div className="relative animate-in slide-in-from-right-4 duration-200">
-              <input
-                type="text"
-                placeholder="Buscar..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-slate-900 border border-slate-800 text-xs rounded-lg px-3 py-1.5 w-32 md:w-48 focus:ring-1 focus:ring-blue-500 outline-none"
-                autoFocus
-              />
-              <button 
-                onClick={() => { setSearchTerm(''); setShowSearch(false); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+        <div className="flex items-center gap-3">
+          <AnimatePresence>
+            {showSearch && (
+              <motion.div 
+                initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 20, scale: 0.9 }}
+                className="relative"
               >
-                <X size={14} />
-              </button>
-            </div>
-          )}
+                <input
+                  type="text"
+                  placeholder="Explorar historial..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="bg-white/5 border border-white/10 text-sm rounded-2xl px-5 py-2.5 w-48 md:w-64 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all placeholder:text-slate-600"
+                  autoFocus
+                />
+                <button 
+                  onClick={() => { setSearchTerm(''); setShowSearch(false); }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
-          <button 
-            onClick={() => setShowSearch(!showSearch)}
-            className={`p-2 rounded-lg transition-colors ${showSearch ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-900 hover:text-white'}`}
-            title="Buscar"
-          >
-            <Icons.Search size={18} />
-          </button>
-
-          <button 
-            onClick={handleExportMarkdown}
-            className="p-2 text-slate-500 hover:text-white hover:bg-slate-900 rounded-lg transition-colors"
-            title="Exportar como Markdown"
-          >
-            <Icons.Download size={18} />
-          </button>
-
-          {messages.length > 0 && (
+          <div className="flex items-center glass p-1 rounded-2xl border border-white/5">
             <button 
-              onClick={onRegenerate}
-              disabled={isStreaming}
-              className="text-slate-500 hover:text-blue-400 transition-all p-2 rounded-full hover:bg-slate-900 disabled:opacity-30"
-              title="Regenerar última respuesta"
+              onClick={() => setShowSearch(!showSearch)}
+              className={`p-2.5 rounded-xl transition-all ${showSearch ? 'bg-white/10 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+              title="Buscar"
             >
-              <RotateCcw size={18} />
+              <Icons.Search size={18} />
             </button>
-          )}
-          <button 
-            onClick={onClearHistory}
-            className="text-slate-500 hover:text-red-400 transition-all p-2 rounded-full hover:bg-slate-900"
-            title="Limpiar historial"
-          >
-            <Trash2 size={18} />
-          </button>
+
+            <button 
+              onClick={handleExportMarkdown}
+              className="p-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+              title="Exportar"
+            >
+              <Icons.Download size={18} />
+            </button>
+
+            {messages.length > 0 && (
+              <button 
+                onClick={onRegenerate}
+                disabled={isStreaming}
+                className="text-slate-400 hover:text-blue-400 transition-all p-2.5 rounded-xl hover:bg-white/5 disabled:opacity-30"
+                title="Regenerar"
+              >
+                <RotateCcw size={18} />
+              </button>
+            )}
+            
+            <button 
+              onClick={onClearHistory}
+              className="text-slate-400 hover:text-red-400 transition-all p-2.5 rounded-xl hover:bg-white/5"
+              title="Limpiar"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -479,27 +495,45 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
           </div>
         )}
         {filteredMessages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-8">
-            <div className={`w-24 h-24 rounded-3xl mb-8 flex items-center justify-center text-white shadow-2xl ${activeBot.avatarColor} ${!searchTerm && 'animate-pulse'}`}>
-              {renderIcon(activeBot.icon, 48)}
-            </div>
-            <h3 className="text-4xl font-black text-white mb-3 tracking-tight">
-              {searchTerm ? "No hay resultados" : "Forge Premium"}
+          <div className="h-full flex flex-col items-center justify-center text-center p-8 relative overflow-hidden">
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className={`w-32 h-32 rounded-[2.5rem] mb-10 flex items-center justify-center text-white shadow-[0_0_50px_rgba(59,130,246,0.3)] bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-500 relative z-10`}
+            >
+              {renderIcon(activeBot.icon, 56)}
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute inset-0 bg-white rounded-full blur-3xl -z-10"
+              />
+            </motion.div>
+            
+            <h3 className="text-6xl font-black text-white mb-6 tracking-tighter font-display">
+              {searchTerm ? "SIN RESULTADOS" : activeBot.name.toUpperCase()}
             </h3>
-            <p className="text-slate-400 max-w-md text-lg leading-relaxed">
-              {searchTerm ? `No se encontraron coincidencias para "${searchTerm}"` : activeBot.description}
+            <p className="text-slate-400 max-w-xl text-xl leading-relaxed font-light mb-12">
+              {searchTerm ? `No encontramos huellas de "${searchTerm}" en este universo.` : activeBot.description}
             </p>
-{/* ... truncated if needed but I'll try to provide enough to match ... */}
+            
             {!searchTerm && (
-              <div className="mt-8 flex gap-3 flex-wrap justify-center">
-                <span className="px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-500 text-xs font-medium flex items-center gap-2">
-                  <Camera size={12} /> Análisis de Imágenes
-                </span>
-                <span className="px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-500 text-xs font-medium flex items-center gap-2">
-                  <BrainCircuit size={12} /> Razonamiento Avanzado
-                </span>
+              <div className="flex gap-4 flex-wrap justify-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                {[
+                  { icon: <Camera size={14} />, label: "VISIÓN PRO" },
+                  { icon: <BrainCircuit size={14} />, label: "PENSAMIENTO PROFUNDO" },
+                  { icon: <Sparkles size={14} />, label: "CREATIVIDAD" }
+                ].map((tag, i) => (
+                  <span key={i} className="px-6 py-2.5 rounded-2xl glass-light text-slate-300 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 border border-white/5 hover:border-white/10 transition-all cursor-default scale-100 hover:scale-105 active:scale-95">
+                    <span className="text-blue-400">{tag.icon}</span>
+                    {tag.label}
+                  </span>
+                ))}
               </div>
             )}
+            
+            {/* Background elements for impact */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px] -z-0"></div>
           </div>
         ) : (
           filteredMessages.map((msg) => (
@@ -521,31 +555,31 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                   </div>
                 )}
                 
-                <div className={`rounded-2xl px-5 py-3.5 leading-relaxed shadow-sm relative group/msg ${msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-900 border border-slate-800 text-slate-200'}`}>
+                <div className={`rounded-[2rem] px-7 py-5 leading-relaxed shadow-2xl relative group/msg transition-all duration-300 ${msg.role === 'user' ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-medium scale-100 hover:scale-[1.01]' : 'glass-light border border-white/5 text-slate-200'}`}>
                   {/* Actions bar */}
-                  <div className={`absolute top-2 flex gap-1 opacity-0 group-hover/msg:opacity-100 transition-opacity ${msg.role === 'user' ? '-left-20' : '-right-24'}`}>
+                  <div className={`absolute top-2 flex gap-1 opacity-0 group-hover/msg:opacity-100 transition-all duration-300 ${msg.role === 'user' ? '-left-24' : '-right-24'}`}>
                     <button 
                       onClick={() => handleCopy(msg.content, msg.id)}
-                      className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-white"
-                      title="Copiar mensaje"
+                      className="p-2.5 rounded-xl glass-light border border-white/10 text-slate-400 hover:text-white"
+                      title="Copiar"
                     >
-                      {copiedId === msg.id ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                      {copiedId === msg.id ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
                     </button>
                     {msg.role === 'model' && !msg.isImage && (
                       <button 
                         onClick={() => handlePlayVoice(msg)}
-                        className={`p-1.5 rounded-lg bg-slate-800 border border-slate-700 transition-all ${playingAudioId === msg.id ? 'text-blue-400 animate-pulse' : 'text-slate-400 hover:text-white'}`}
-                        title="Escuchar mensaje"
+                        className={`p-2.5 rounded-xl glass-light border border-white/10 transition-all ${playingAudioId === msg.id ? 'text-blue-400 animate-pulse' : 'text-slate-400 hover:text-white'}`}
+                        title="Reproducir voz"
                       >
-                        {loadingAudioId === msg.id ? <Loader2 size={14} className="animate-spin" /> : playingAudioId === msg.id ? <Volume2 size={14} /> : <PlayCircle size={14} />}
+                        {loadingAudioId === msg.id ? <Loader2 size={16} className="animate-spin" /> : playingAudioId === msg.id ? <Volume2 size={16} /> : <Volume2 size={16} />}
                       </button>
                     )}
                     <button 
                       onClick={() => onDeleteMessage(msg.id)}
-                      className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-red-400"
-                      title="Eliminar mensaje"
+                      className="p-2.5 rounded-xl glass-light border border-white/10 text-slate-400 hover:text-red-400"
+                      title="Borrar"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
 
@@ -666,61 +700,111 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                  {activeBot.avatarUrl ? (
                    <img src={activeBot.avatarUrl} alt={activeBot.name} className="w-full h-full object-cover" />
                  ) : activeBot.model === ModelType.PRO ? (
-                   <>
+                   <div className="relative w-full h-full flex items-center justify-center bg-slate-900">
                      <motion.div 
                         animate={{ 
+                          rotate: 360,
                           scale: [1, 1.2, 1],
-                          opacity: [0.5, 1, 0.5]
                         }}
-                        transition={{ repeat: Infinity, duration: 2 }}
-                        className="absolute inset-0 bg-white/20"
+                        transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                        className="absolute inset-0 opacity-20 bg-[conic-gradient(from_0deg,#6366f1,#a855f7,#ec4899,#6366f1)]"
                      />
-                     <Zap className="text-white relative z-10" size={20} fill="currentColor" />
-                   </>
+                     <BrainCircuit className="text-indigo-400 relative z-10" size={20} />
+                   </div>
                  ) : (
-                   <BrainCircuit className="text-white animate-pulse" size={20} />
+                   <div className="relative w-full h-full flex items-center justify-center">
+                     <BrainCircuit className="text-white animate-pulse" size={20} />
+                   </div>
                  )}
                </div>
                
-               <div className={`rounded-2xl px-5 py-3 text-sm flex items-center gap-3 shadow-xl ${
+               <div className={`rounded-2xl px-5 py-4 text-sm flex flex-col gap-3 shadow-2xl transition-all duration-500 ${
                  activeBot.model === ModelType.PRO 
-                   ? 'bg-gradient-to-r from-slate-900 to-indigo-950 border border-indigo-500/30 text-indigo-100' 
+                   ? 'bg-slate-900/50 backdrop-blur-xl border border-indigo-500/30 text-indigo-100 min-w-[300px]' 
                    : 'bg-slate-900 border border-slate-800 text-slate-400'
                }`}>
                  {activeBot.model === ModelType.PRO ? (
-                   <div className="flex items-center gap-4">
-                     <div className="flex gap-1.5">
-                       {[0, 1, 2].map((i) => (
-                         <motion.span
-                           key={i}
-                           animate={{ 
-                             scale: [1, 1.5, 1],
-                             opacity: [0.3, 1, 0.3],
-                             backgroundColor: ['#6366f1', '#a855f7', '#ec4899', '#6366f1'][i] 
-                           }}
-                           transition={{ 
-                             repeat: Infinity, 
-                             duration: 1.5, 
-                             delay: i * 0.2 
-                           }}
-                           className="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.5)]"
-                         />
-                       ))}
+                   <div className="space-y-4">
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-2">
+                         <div className="flex gap-1">
+                           {[0, 1, 2].map((i) => (
+                             <motion.span
+                               key={i}
+                               animate={{ 
+                                 opacity: [0.3, 1, 0.3],
+                                 scale: [0.8, 1.2, 0.8]
+                               }}
+                               transition={{ 
+                                 repeat: Infinity, 
+                                 duration: 1, 
+                                 delay: i * 0.2 
+                               }}
+                               className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                             />
+                           ))}
+                         </div>
+                         <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400/80">Modo Pensamiento</span>
+                       </div>
+                       <motion.div
+                         animate={{ rotate: 360 }}
+                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                       >
+                         <Icons.Settings size={12} className="text-indigo-500/50" />
+                       </motion.div>
                      </div>
-                     <div className="flex flex-col">
-                       <span className="font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-                         {activeBot.name} (Gemini 3 Pro)
-                       </span>
-                       <span className="text-[10px] text-indigo-300/60 font-mono uppercase tracking-widest">
-                         Procesando razonamiento profundo...
-                       </span>
+
+                     <div className="flex items-start gap-4">
+                       <div className="relative shrink-0 mt-1">
+                          <div className="w-8 h-8 rounded-full border border-indigo-500/20 flex items-center justify-center">
+                            <motion.div
+                              animate={{ 
+                                scale: [1, 1.3, 1],
+                                opacity: [0.5, 0.8, 0.5]
+                              }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="absolute inset-0 bg-indigo-500/10 rounded-full"
+                            />
+                            <Zap size={14} className="text-indigo-400" />
+                          </div>
+                       </div>
+                       
+                       <div className="flex flex-col gap-1">
+                         <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                           {activeBot.name} 
+                           <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-mono border border-indigo-500/20">GEMINI 3 PRO</span>
+                         </h4>
+                         <p className="text-xs text-indigo-300/70 leading-relaxed max-w-[240px]">
+                           <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="font-black text-indigo-400">RAZONANDO...</motion.span> Analizando variables complejas y sintetizando una respuesta de alta precisión...
+                         </p>
+                       </div>
+                     </div>
+
+                     {/* Simulated thinking bars */}
+                     <div className="space-y-1.5 pt-1">
+                        <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ x: '-100%' }}
+                            animate={{ x: '100%' }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                            className="h-full w-1/3 bg-gradient-to-r from-transparent via-indigo-400 to-transparent"
+                          />
+                        </div>
+                        <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ x: '-100%' }}
+                            animate={{ x: '100%' }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                            className="h-full w-1/2 bg-gradient-to-r from-transparent via-purple-400 to-transparent"
+                          />
+                        </div>
                      </div>
                    </div>
                  ) : (
-                   <>
+                   <div className="flex items-center gap-3">
                      <Loader2 className="animate-spin text-blue-500" size={14} />
                      <span>{activeBot.name} está analizando tu petición...</span>
-                   </>
+                   </div>
                  )}
                </div>
             </motion.div>
@@ -738,10 +822,10 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         </button>
       )}
 
-      <div className="p-4 bg-slate-950 border-t border-slate-800">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <div className="p-6 bg-transparent relative z-20">
+        <div className="max-w-4xl mx-auto space-y-6">
           {showCamera && (
-            <div className="relative rounded-3xl overflow-hidden bg-black aspect-video animate-in zoom-in-95 duration-300 shadow-2xl border border-slate-800 group">
+            <div className="relative rounded-[3rem] overflow-hidden bg-black aspect-video animate-in zoom-in-95 duration-500 shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 group">
               <video 
                 ref={videoRef} 
                 autoPlay 
@@ -754,45 +838,45 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                 <div className="absolute inset-0 bg-white animate-out fade-out duration-300 z-50" />
               )}
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
               
               {/* Camera Header Info */}
-              <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/80 text-[10px] font-bold uppercase tracking-wider">
+              <div className="absolute top-6 left-6 flex items-center gap-3 px-4 py-2 rounded-2xl glass-light border border-white/10 text-white/80 text-[10px] font-black uppercase tracking-[0.2em]">
                 <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                Live: {facingMode === 'user' ? 'Front' : 'Back'} Camera
+                Live Feed: {facingMode === 'user' ? 'Front' : 'Back'} Sensors
               </div>
 
-              <div className="absolute inset-x-0 bottom-8 flex justify-center items-center gap-6">
+              <div className="absolute inset-x-0 bottom-10 flex justify-center items-center gap-8">
                 <button 
                   onClick={stopCamera}
-                  className="w-14 h-14 rounded-full bg-slate-900/80 backdrop-blur-md flex items-center justify-center text-white shadow-2xl hover:bg-slate-800 active:scale-90 transition-all border border-white/10"
+                  className="w-16 h-16 rounded-full glass flex items-center justify-center text-white shadow-2xl hover:bg-white/10 active:scale-90 transition-all border border-white/5"
                   title="Cerrar"
                 >
-                  <X size={24} />
+                  <X size={28} />
                 </button>
 
                 <button 
                   onClick={capturePhoto}
-                  className="w-20 h-20 rounded-full bg-white flex items-center justify-center text-slate-900 shadow-2xl hover:scale-110 active:scale-95 transition-all border-[6px] border-white/30 group/shutter"
-                  title="Tomar Foto"
+                  className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-slate-900 shadow-[0_0_60px_rgba(255,255,255,0.4)] hover:scale-110 active:scale-95 transition-all border-[8px] border-white/20 group/shutter"
+                  title="Capturar"
                 >
-                  <div className="w-14 h-14 rounded-full border-2 border-slate-900/10 flex items-center justify-center group-hover/shutter:bg-slate-50 transition-colors">
-                    <Camera size={32} strokeWidth={2.5} />
+                  <div className="w-16 h-16 rounded-full border-2 border-slate-900/5 flex items-center justify-center group-hover/shutter:bg-slate-50 transition-colors">
+                    <Camera size={36} strokeWidth={2.5} />
                   </div>
                 </button>
 
                 <button 
                   onClick={toggleCamera}
-                  className="w-14 h-14 rounded-full bg-slate-900/80 backdrop-blur-md flex items-center justify-center text-white shadow-2xl hover:bg-slate-800 active:scale-90 transition-all border border-white/10"
-                  title="Girar Cámara"
+                  className="w-16 h-16 rounded-full glass flex items-center justify-center text-white shadow-2xl hover:bg-white/10 active:scale-90 transition-all border border-white/5"
+                  title="Cambiar"
                 >
-                  <Icons.RefreshCw size={24} />
+                  <Icons.RefreshCw size={28} />
                 </button>
               </div>
             </div>
           )}
 
-          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl flex items-end p-2 focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all shadow-2xl shadow-black/50">
+          <div className="glass-light border border-white/10 rounded-[2.5rem] flex items-end p-2.5 focus-within:border-blue-500/50 focus-within:ring-[12px] focus-within:ring-blue-500/5 transition-all shadow-[0_40px_100px_rgba(0,0,0,0.4)]">
             <input 
               type="file" 
               ref={fileInputRef} 
@@ -800,69 +884,71 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               accept="image/*" 
               onChange={handleFileChange} 
             />
-            <button 
-              onClick={() => fileInputRef.current?.click()}
-              className="p-2.5 text-slate-500 hover:text-white transition-colors rounded-xl hover:bg-slate-800 h-11 w-11 flex items-center justify-center shrink-0"
-              title="Adjuntar imagen"
-            >
-              <ImageIcon size={20} />
-            </button>
-
-            <button 
-              onClick={() => startCamera()}
-              className={`p-2.5 transition-all rounded-xl h-11 w-11 flex items-center justify-center shrink-0 ${showCamera ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-105' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
-              title="Cámara"
-            >
-              <Camera size={20} />
-            </button>
-
-            <button 
-              onClick={toggleListening}
-              className={`p-2.5 transition-colors rounded-xl h-11 w-11 flex items-center justify-center shrink-0 ${isListening ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/20' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
-              title={isListening ? "Detener dictado" : "Dictar mensaje"}
-            >
-              {isListening ? <MicOff size={20} /> : <Mic size={20} />}
-            </button>
             
-            <div className="flex-1 flex flex-col">
+            <div className="flex bg-white/5 p-1 rounded-[1.8rem] border border-white/5">
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="p-3 text-slate-400 hover:text-white transition-all rounded-[1.4rem] hover:bg-white/5 h-12 w-12 flex items-center justify-center shrink-0"
+                title="Imagen"
+              >
+                <ImageIcon size={20} />
+              </button>
+
+              <button 
+                onClick={() => startCamera()}
+                className={`p-3 transition-all rounded-[1.4rem] h-12 w-12 flex items-center justify-center shrink-0 ${showCamera ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20 scale-105' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                title="Sensores"
+              >
+                <Camera size={20} />
+              </button>
+
+              <button 
+                onClick={toggleListening}
+                className={`p-3 transition-all rounded-[1.4rem] h-12 w-12 flex items-center justify-center shrink-0 ${isListening ? 'bg-red-500 text-white animate-pulse shadow-xl shadow-red-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                title="Dictar"
+              >
+                {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+              </button>
+            </div>
+            
+            <div className="flex-1 flex flex-col mx-2">
               <textarea
                 ref={textareaRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onPaste={handlePaste}
-                placeholder={attachedImage ? "¿Qué quieres saber de esta imagen?" : `Mensaje a ${activeBot.name}...`}
-                className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-slate-600 resize-none py-2.5 px-3 min-h-[44px] max-h-[150px]"
+                placeholder={attachedImage ? "¿Analizar esta imagen?" : `Escribe a ${activeBot.name}...`}
+                className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-slate-600 resize-none py-3 px-4 min-h-[50px] max-h-[180px] text-base"
                 rows={1}
               />
               
               <AnimatePresence>
                 {attachedImage && (
                   <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
+                    initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                    exit={{ opacity: 0, height: 0, scale: 0.95 }}
                     className="overflow-hidden"
                   >
-                    <div className="flex items-center gap-4 px-3 py-3 border-t border-slate-800/50 mt-1">
+                    <div className="flex items-center gap-5 px-4 py-4 border-t border-white/5 mt-2 bg-white/[0.02] rounded-3xl mx-2 mb-2">
                       <div className="relative group shrink-0">
-                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-blue-500/50 shadow-lg shadow-blue-500/10 bg-slate-950">
+                        <div className="w-20 h-20 rounded-2xl overflow-hidden border border-blue-500/40 shadow-2xl bg-slate-950">
                           <img src={attachedImage.preview} alt="Preview" className="w-full h-full object-cover" />
                         </div>
                         <button 
                           onClick={() => setAttachedImage(null)}
-                          className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors border border-slate-900 z-10"
-                          title="Eliminar imagen"
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 shadow-xl hover:bg-red-600 transition-all border-2 border-slate-950 z-10 scale-100 hover:scale-110 active:scale-90"
                         >
-                          <X size={10} strokeWidth={3} />
+                          <X size={12} strokeWidth={3} />
                         </button>
                       </div>
-                      <div className="space-y-1">
-                        <div className="px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[9px] font-black text-blue-400 uppercase tracking-widest inline-flex items-center gap-1.5">
-                          <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
-                          Imagen Lista
+                      <div className="space-y-2">
+                        <div className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] inline-flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                          INPUT VISUAL LISTO
                         </div>
-                        <p className="text-[10px] text-slate-500 font-mono">
+                        <p className="text-[10px] text-slate-500 font-mono tracking-widest">
                           {attachedImage.mimeType.split('/')[1].toUpperCase()} • {(attachedImage.data.length * 0.75 / 1024).toFixed(0)} KB
                         </p>
                       </div>
@@ -872,40 +958,48 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               </AnimatePresence>
             </div>
 
-            <button 
-              onClick={handleEnhance}
-              disabled={!input.trim() || isEnhancing || isStreaming}
-              className={`p-2.5 transition-all rounded-xl h-11 w-11 flex items-center justify-center shrink-0 relative group/enhance ${
-                isEnhancing 
-                  ? 'bg-purple-600 text-white animate-pulse' 
-                  : (activeBot.id === 'bot-artist' || activeBot.id === 'bot-video') && input.trim()
-                    ? 'text-purple-400 hover:text-purple-300 hover:bg-purple-500/10'
-                    : 'text-slate-500 hover:text-purple-400 hover:bg-slate-800'
-              }`}
-              title="Optimizar prompt con IA"
-            >
-              {isEnhancing ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : (
-                <>
-                  <Sparkles size={20} className={input.trim() && (activeBot.id === 'bot-artist' || activeBot.id === 'bot-video') ? 'animate-pulse' : ''} />
-                  {input.trim() && (activeBot.id === 'bot-artist' || activeBot.id === 'bot-video') && (
-                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
-            
-            <button 
-              onClick={() => handleSubmit()}
-              disabled={(!input.trim() && !attachedImage) || isStreaming}
-              className={`p-2.5 rounded-xl transition-all transform active:scale-90 ${ (input.trim() || attachedImage) && !isStreaming ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-slate-800 text-slate-600'}`}
-            >
-              <Send size={20} />
-            </button>
+            <div className="flex bg-white/5 p-1 rounded-[1.8rem] border border-white/5 items-center">
+              <button 
+                onClick={handleEnhance}
+                disabled={!input.trim() || isEnhancing || isStreaming}
+                className={`p-3 transition-all rounded-[1.4rem] h-12 w-12 flex items-center justify-center shrink-0 relative group/enhance ${
+                  isEnhancing 
+                    ? 'bg-purple-600 text-white animate-pulse shadow-xl shadow-purple-600/30' 
+                    : 'text-slate-400 hover:text-purple-400 hover:bg-white/5'
+                }`}
+                title="Optimizar"
+              >
+                {isEnhancing ? (
+                  <Loader2 size={20} className="animate-spin" />
+                ) : (
+                  <>
+                    <Sparkles size={20} className={input.trim() && (activeBot.id === 'bot-artist' || activeBot.id === 'bot-video') ? 'animate-pulse' : ''} />
+                    {input.trim() && (activeBot.id === 'bot-artist' || activeBot.id === 'bot-video') && (
+                      <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                      </span>
+                    )}
+                  </>
+                )}
+              </button>
+              
+              <button 
+                onClick={() => handleSubmit()}
+                disabled={(!input.trim() && !attachedImage) || isStreaming}
+                className={`p-3 transition-all rounded-full h-12 w-12 flex items-center justify-center shrink-0 ${
+                  (!input.trim() && !attachedImage) || isStreaming
+                    ? 'text-slate-600 opacity-50'
+                    : 'bg-white text-black shadow-xl hover:scale-105 active:scale-95'
+                }`}
+              >
+                {isStreaming ? (
+                  <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                ) : (
+                  <Send size={20} className="translate-x-0.5 -translate-y-0.5" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

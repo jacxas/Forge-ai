@@ -59,117 +59,118 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, isOpen, onCl
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-transparent backdrop-blur-[100px]"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+            exit={{ opacity: 0, scale: 0.9, y: 40 }}
+            className="relative glass border border-white/10 w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-[0_100px_200px_rgba(0,0,0,0.8)] flex flex-col max-h-[90vh]"
           >
-            <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/50 backdrop-blur">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Shield size={20} className="text-blue-500" />
-                Configuración y Perfil
+            <div className="p-10 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <h2 className="text-3xl font-black text-white flex items-center gap-4 font-display tracking-tight uppercase">
+                <Shield size={32} className="text-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)]" />
+                CONFIGURACIÓN
               </h2>
               <button 
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
+                className="w-12 h-12 rounded-full glass-light border border-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center"
               >
-                <X size={20} />
+                <X size={24} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-10 space-y-14 custom-scrollbar">
               {/* Profile Section */}
-              <section className="space-y-6">
-                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <User size={14} /> Tu Perfil
+              <section className="space-y-10">
+                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] flex items-center gap-3">
+                  <User size={14} className="text-blue-500/50" /> IDENTIDAD
                 </h3>
                 
-                <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 rounded-3xl overflow-hidden bg-slate-800 border-2 border-slate-700 shrink-0">
+                <div className="flex items-center gap-10">
+                  <div className="w-28 h-28 rounded-[2.5rem] overflow-hidden glass border-2 border-white/10 shrink-0 shadow-2xl group relative">
                     {user?.photoURL ? (
-                      <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
+                      <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 transition-all duration-700" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-500">
-                        <User size={32} />
+                      <div className="w-full h-full flex items-center justify-center text-slate-700 bg-white/[0.02]">
+                        <User size={48} />
                       </div>
                     )}
+                    <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </div>
-                  <div className="flex-1 space-y-4">
+                  <div className="flex-1 space-y-6">
                     <div>
-                      <label className="block text-xs font-medium text-slate-500 mb-1.5 ml-1">Nombre Público</label>
+                      <label className="block text-[10px] font-black text-slate-600 mb-3 ml-1 uppercase tracking-widest">Nombre Público</label>
                       <input 
                         type="text" 
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Tu nombre..."
-                        className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
+                        placeholder="Tu alias en Forge..."
+                        className="w-full bg-white/[0.02] border border-white/5 rounded-2xl px-6 py-4 text-white font-light text-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none transition-all placeholder-slate-800"
                       />
                     </div>
-                    <div className="text-xs text-slate-500 flex items-center gap-2 px-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                      {user?.email}
+                    <div className="text-[10px] text-slate-500 font-mono font-bold tracking-tighter flex items-center gap-3 bg-white/[0.02] w-fit px-4 py-2 rounded-xl border border-white/5">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse"></div>
+                      {user?.email?.toUpperCase()}
                     </div>
                   </div>
                 </div>
               </section>
 
               {/* Personalization Section */}
-              <section className="space-y-6">
-                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <Palette size={14} /> Personalización
+              <section className="space-y-10">
+                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] flex items-center gap-3">
+                  <Palette size={14} className="text-purple-500/50" /> ESTÉTICA
                 </h3>
                 
-                <div className="space-y-4">
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5 ml-1">Color de Acento</label>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                <div className="space-y-6">
+                  <label className="block text-[10px] font-black text-slate-600 mb-3 ml-1 uppercase tracking-widest">NÚCLEO CROMÁTICO</label>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-6">
                     {ACCENT_COLORS.map((color) => (
                       <button
                         key={color.value}
                         onClick={() => setAccentColor(color.value)}
-                        className={`group relative h-12 rounded-xl border-2 transition-all flex items-center justify-center ${
+                        className={`group relative h-16 rounded-2xl border-2 transition-all flex items-center justify-center ${
                           accentColor === color.value 
-                            ? 'border-white scale-105 shadow-lg' 
-                            : 'border-transparent hover:border-slate-700'
+                            ? 'border-white scale-110 shadow-[0_20px_50px_rgba(0,0,0,0.4)]' 
+                            : 'border-transparent hover:border-white/20 glass-light'
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-lg ${color.class} shadow-inner`}></div>
+                        <div className={`w-10 h-10 rounded-xl ${color.class} shadow-2xl opacity-80 group-hover:opacity-100 transition-opacity`}></div>
                         {accentColor === color.value && (
-                          <div className="absolute -top-1 -right-1 bg-white text-slate-900 rounded-full p-0.5">
-                            <Check size={10} strokeWidth={4} />
-                          </div>
+                          <motion.div 
+                            layoutId="accentCheck"
+                            className="absolute -top-2 -right-2 bg-white text-black rounded-full p-1 shadow-2xl"
+                          >
+                            <Check size={12} strokeWidth={4} />
+                          </motion.div>
                         )}
-                        <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                          {color.name}
-                        </span>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div className="bg-slate-800/30 border border-slate-700 p-4 rounded-2xl flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
-                          <Globe size={18} />
+                <div className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="glass-light border border-white/5 p-6 rounded-[2rem] flex items-center justify-between group hover:bg-white/5 transition-all">
+                      <div className="flex items-center gap-5">
+                        <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400 group-hover:scale-110 transition-transform">
+                          <Globe size={24} />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">Idioma</p>
-                          <p className="text-[10px] text-slate-500">Español (ES)</p>
+                          <p className="text-[10px] font-black text-white uppercase tracking-widest">Región</p>
+                          <p className="text-base text-slate-500 font-light tracking-tight">Español (Global)</p>
                         </div>
                       </div>
-                      <button className="text-xs text-blue-400 font-semibold hover:underline">Cambiar</button>
+                      <button className="text-[10px] font-black text-blue-400 hover:text-white transition-colors uppercase tracking-[0.2em] px-4 py-2 bg-blue-400/5 rounded-xl border border-blue-400/20">CONFIG</button>
                    </div>
-                   <div className="bg-slate-800/30 border border-slate-700 p-4 rounded-2xl flex items-center justify-between opacity-50 cursor-not-allowed">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
-                          <Bell size={18} />
+                   <div className="glass-light border border-white/5 p-6 rounded-[2rem] flex items-center justify-between opacity-30 cursor-not-allowed group">
+                      <div className="flex items-center gap-5">
+                        <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400">
+                          <Bell size={24} />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">Notificaciones</p>
-                          <p className="text-[10px] text-slate-500">Próximamente</p>
+                          <p className="text-[10px] font-black text-white uppercase tracking-widest">Nodos</p>
+                          <p className="text-base text-slate-600 font-light tracking-tight">Cifrado</p>
                         </div>
                       </div>
                    </div>
@@ -177,24 +178,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, isOpen, onCl
               </section>
             </div>
 
-            <div className="p-6 border-t border-slate-800 bg-slate-900/50 backdrop-blur flex gap-3">
+            <div className="p-10 border-t border-white/5 bg-white/[0.02] flex gap-6">
               <button 
                 onClick={onClose}
-                className="flex-1 px-6 py-3 rounded-2xl border border-slate-700 text-white font-bold hover:bg-slate-800 transition-all"
+                className="flex-1 px-8 py-5 rounded-[2rem] border border-white/10 text-slate-400 font-black uppercase tracking-[0.3em] text-[10px] hover:bg-white/5 hover:text-white transition-all shadow-2xl active:scale-95"
               >
-                Cancelar
+                DESCARTAR
               </button>
               <button 
                 onClick={handleSave}
                 disabled={isSaving}
-                className={`flex-[2] px-6 py-3 rounded-2xl text-black font-bold transition-all shadow-xl shadow-blue-500/10 active:scale-[0.98] flex items-center justify-center gap-2 ${
-                  isSaving ? 'bg-slate-700' : 'bg-white hover:bg-slate-200'
+                className={`flex-[2] px-8 py-5 rounded-[2.5rem] text-black font-black uppercase tracking-[0.3em] text-[10px] transition-all shadow-[0_20px_50px_rgba(255,255,255,0.1)] active:scale-[0.98] flex items-center justify-center gap-3 ${
+                  isSaving ? 'bg-slate-800 text-slate-600' : 'bg-white hover:bg-slate-100'
                 }`}
               >
                 {isSaving ? (
                   <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
                 ) : (
-                  'Guardar Cambios'
+                  <>
+                    <Check size={18} strokeWidth={3} />
+                    SINCRONIZAR CAMBIOS
+                  </>
                 )}
               </button>
             </div>

@@ -111,36 +111,37 @@ export const BotCreator: React.FC<BotCreatorProps> = ({ onClose, onCreate, bot }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[95vh] overflow-hidden">
-        <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className={`p-2 rounded-xl bg-blue-600 shadow-lg shadow-blue-900/20 w-10 h-10 flex items-center justify-center`}>
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-2xl animate-in fade-in duration-500">
+      <div className="glass border border-white/10 rounded-[3rem] w-full max-w-2xl shadow-[0_40px_100px_rgba(0,0,0,0.6)] flex flex-col max-h-[95vh] overflow-hidden">
+        <div className="p-8 border-b border-white/5 flex justify-between items-center glass-light relative">
+          <h2 className="text-3xl font-black text-white flex items-center gap-5 font-display tracking-tight">
+            <div className={`p-1 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-[0_10px_30px_rgba(37,99,235,0.3)] w-14 h-14 flex items-center justify-center relative overflow-hidden group/avatar`}>
               {formData.avatarUrl ? (
-                <img src={formData.avatarUrl} alt="Bot Avatar" className="w-full h-full object-cover rounded-lg" />
+                <img src={formData.avatarUrl} alt="Bot Avatar" className="w-full h-full object-cover rounded-xl" />
               ) : (
-                <BotIcon size={24} />
+                <BotIcon size={28} className="text-white" />
               )}
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/avatar:opacity-100 transition-opacity" />
             </div>
-            {bot ? 'Editar Bot' : 'Configurar Bot'}
+            {bot ? 'REINVENTAR BOT' : 'FORJAR NUEVO BOT'}
           </h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-slate-800 rounded-full">
-            <X size={24} />
+          <button onClick={onClose} className="text-slate-500 hover:text-white transition-all p-3 hover:bg-white/5 rounded-full rotate-0 hover:rotate-90">
+            <X size={28} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-8 overflow-y-auto custom-scrollbar bg-slate-900">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-10 overflow-y-auto custom-scrollbar bg-transparent">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {/* Icon & Color Section */}
-              <div className="space-y-6">
-                 <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">Personalizar Avatar con IA</label>
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
+              <div className="space-y-8">
+                 <div className="space-y-4">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Avatar Artificial</label>
+                    <div className="space-y-4">
+                      <div className="flex gap-3">
                         <input 
                           type="text" 
-                          placeholder="Describe el avatar..."
-                          className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:ring-1 focus:ring-purple-500"
+                          placeholder="Describe la apariencia..."
+                          className="flex-1 glass-light border border-white/10 rounded-2xl px-5 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-purple-500/50 transition-all placeholder:text-slate-600"
                           value={avatarPrompt}
                           onChange={(e) => setAvatarPrompt(e.target.value)}
                         />
@@ -148,206 +149,201 @@ export const BotCreator: React.FC<BotCreatorProps> = ({ onClose, onCreate, bot }
                           type="button"
                           onClick={handleGenerateAvatar}
                           disabled={isGeneratingAvatar || !avatarPrompt.trim()}
-                          className="bg-purple-600 hover:bg-purple-500 text-white p-2 rounded-xl transition-all disabled:opacity-50"
+                          className="bg-purple-600 hover:bg-purple-500 text-white w-12 h-12 flex items-center justify-center rounded-2xl transition-all disabled:opacity-30 shadow-xl shadow-purple-600/20 active:scale-95"
                         >
-                          {isGeneratingAvatar ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                          {isGeneratingAvatar ? <Loader2 size={20} className="animate-spin" /> : <Sparkles size={20} />}
                         </button>
                       </div>
                       
                       {formData.avatarUrl && (
-                        <div className="flex items-center justify-between p-2 bg-slate-950 border border-slate-800 rounded-xl">
-                          <div className="flex items-center gap-3">
-                            <img src={formData.avatarUrl} alt="Preview" className="w-10 h-10 rounded-lg object-cover" />
-                            <span className="text-[10px] text-slate-400 font-medium">Avatar generado</span>
+                        <div className="flex items-center justify-between p-3 glass-light border border-white/10 rounded-2xl animate-in slide-in-from-top-4">
+                          <div className="flex items-center gap-4">
+                            <img src={formData.avatarUrl} alt="Preview" className="w-12 h-12 rounded-xl object-cover shadow-2xl" />
+                            <div className="space-y-0.5">
+                              <span className="text-[9px] text-white font-black uppercase tracking-widest">NUCLEO GENERADO</span>
+                              <p className="text-[10px] text-slate-500 font-mono">512px • Vector-AI</p>
+                            </div>
                           </div>
                           <button 
                             type="button" 
                             onClick={() => setFormData({ ...formData, avatarUrl: undefined })}
-                            className="text-slate-500 hover:text-red-400 p-1.5"
+                            className="bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white p-2.5 rounded-xl transition-all"
                           >
-                            <RotateCcw size={14} />
+                            <RotateCcw size={16} />
                           </button>
                         </div>
                       )}
                     </div>
                  </div>
 
-                 <div className="flex justify-between items-end pt-2 border-t border-slate-800/50">
-                    <label className="block text-sm font-semibold text-slate-300">O elige Icono y Color</label>
-                    <div className="flex gap-1.5">
-                      {AVAILABLE_COLORS.slice(0, 7).map((color) => (
-                        <button
-                          key={color}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, avatarColor: color })}
-                          className={`w-5 h-5 rounded-full ${color} transition-all ${formData.avatarColor === color ? 'ring-2 ring-white scale-110' : 'opacity-60 hover:opacity-100'}`}
-                        />
-                      ))}
-                    </div>
-                 </div>
-
-                 <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-inner">
-                    <div className="p-3 border-b border-slate-800 bg-slate-900/30 flex items-center gap-2">
-                       <Icons.Search size={14} className="text-slate-500" />
-                       <input 
-                         type="text" 
-                         placeholder="Buscar icono..."
-                         value={iconSearch}
-                         onChange={(e) => handleIconSearchChange(e.target.value)}
-                         className="bg-transparent text-xs text-white outline-none w-full"
-                       />
-                       {iconSearch && (
-                         <button 
-                           type="button" 
-                           onClick={() => handleIconSearchChange('')}
-                           className="text-slate-500 hover:text-white"
-                         >
-                           <Icons.XCircle size={14} />
-                         </button>
-                       )}
-                    </div>
-                    
-                    {iconSearch.trim() === '' && (
-                      <div className="flex overflow-x-auto p-1.5 gap-1 bg-slate-900/40 border-b border-slate-800 scrollbar-none scroll-smooth">
-                        {ICONS_CATEGORIES.map((cat) => (
+                 <div className="space-y-4 pt-6 border-t border-white/5">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Cromatismo e Identidad</label>
+                      <div className="flex gap-2">
+                        {AVAILABLE_COLORS.slice(0, 6).map((color) => (
                           <button
-                            key={cat.name}
+                            key={color}
                             type="button"
-                            onClick={() => handleCategoryChange(cat.name)}
-                            className={`px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all shrink-0 uppercase tracking-wider ${
-                              activeIconCategory === cat.name 
-                                ? 'bg-blue-600/20 text-blue-400 ring-1 ring-blue-500/50' 
-                                : 'text-slate-500 hover:bg-slate-800 hover:text-slate-300'
-                            }`}
+                            onClick={() => setFormData({ ...formData, avatarColor: color })}
+                            className={`w-4 h-4 rounded-full ${color} transition-all relative ${formData.avatarColor === color ? 'scale-125 shadow-[0_0_15px_rgba(255,255,255,0.3)] ring-2 ring-white' : 'opacity-40 hover:opacity-100 hover:scale-110'}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="glass-light border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative group focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+                      <div className="p-4 border-b border-white/5 glass-light flex items-center gap-3">
+                         <Icons.Search size={16} className="text-slate-500" />
+                         <input 
+                           type="text" 
+                           placeholder="Buscar iconografía..."
+                           value={iconSearch}
+                           onChange={(e) => handleIconSearchChange(e.target.value)}
+                           className="bg-transparent text-sm text-white outline-none w-full placeholder:text-slate-600 font-medium"
+                         />
+                      </div>
+                      
+                      {iconSearch.trim() === '' && (
+                        <div className="flex overflow-x-auto p-2 gap-2 glass-light border-b border-white/5 scrollbar-none">
+                          {ICONS_CATEGORIES.map((cat) => (
+                            <button
+                              key={cat.name}
+                              type="button"
+                              onClick={() => handleCategoryChange(cat.name)}
+                              className={`px-4 py-2 rounded-xl text-[9px] font-black transition-all shrink-0 uppercase tracking-[0.2em] ${
+                                activeIconCategory === cat.name 
+                                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
+                                  : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'
+                              }`}
+                            >
+                              {cat.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="h-44 overflow-y-auto p-4 grid grid-cols-6 gap-3 custom-scrollbar bg-white/[0.01]">
+                        {paginatedIcons.map((iconName) => (
+                          <button
+                            key={iconName}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, icon: iconName })}
+                            className={`w-full aspect-square rounded-[1.25rem] flex items-center justify-center border-2 transition-all group/icon ${formData.icon === iconName ? 'bg-blue-600 border-white text-white shadow-xl scale-105 z-10' : 'glass-light border-white/5 text-slate-500 hover:border-white/20 hover:text-white'}`}
                           >
-                            {cat.name}
+                            {renderIcon(iconName, 22)}
                           </button>
                         ))}
                       </div>
-                    )}
 
-                    <div className="h-40 overflow-y-auto p-3 grid grid-cols-6 gap-2 custom-scrollbar bg-slate-900/10">
-                      {paginatedIcons.map((iconName) => (
-                        <button
-                          key={iconName}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, icon: iconName })}
-                          className={`w-full aspect-square rounded-xl flex items-center justify-center border transition-all ${formData.icon === iconName ? 'bg-blue-600 border-blue-400 text-white shadow-lg' : 'bg-slate-800/50 border-slate-700 text-slate-500 hover:bg-slate-800'}`}
-                        >
-                          {renderIcon(iconName, 18)}
-                        </button>
-                      ))}
-                      {paginatedIcons.length === 0 && (
-                        <div className="col-span-6 py-8 text-center flex flex-col items-center gap-2">
-                          <Icons.SearchX size={24} className="text-slate-700" />
-                          <span className="text-xs text-slate-600 font-medium italic">No se encontraron iconos</span>
+                      {totalPages > 1 && (
+                        <div className="px-4 py-3 border-t border-white/5 flex justify-between items-center glass-light">
+                          <span className="text-[9px] text-slate-500 font-mono font-bold tracking-widest">
+                            {iconPage + 1} / {totalPages}
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setIconPage(prev => Math.max(0, prev - 1))}
+                              disabled={iconPage === 0}
+                              className="w-8 h-8 flex items-center justify-center glass-light rounded-xl text-slate-400 hover:text-white disabled:opacity-20 border border-white/5"
+                            >
+                              <Icons.ChevronLeft size={16} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setIconPage(prev => Math.min(totalPages - 1, prev + 1))}
+                              disabled={iconPage === totalPages - 1}
+                              className="w-8 h-8 flex items-center justify-center glass-light rounded-xl text-slate-400 hover:text-white disabled:opacity-20 border border-white/5"
+                            >
+                              <Icons.ChevronRight size={16} />
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
-
-                    {totalPages > 1 && (
-                      <div className="px-3 py-2 border-t border-slate-800 flex justify-between items-center bg-slate-900/30">
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          PÁGINA {iconPage + 1} DE {totalPages}
-                        </span>
-                        <div className="flex gap-1">
-                          <button
-                            type="button"
-                            onClick={() => setIconPage(prev => Math.max(0, prev - 1))}
-                            disabled={iconPage === 0}
-                            className="bg-slate-800 text-slate-300 p-1 rounded-lg disabled:opacity-30 hover:bg-slate-700"
-                          >
-                            <Icons.ChevronLeft size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setIconPage(prev => Math.min(totalPages - 1, prev + 1))}
-                            disabled={iconPage === totalPages - 1}
-                            className="bg-slate-800 text-slate-300 p-1 rounded-lg disabled:opacity-30 hover:bg-slate-700"
-                          >
-                            <Icons.ChevronRight size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    )}
                  </div>
               </div>
 
              {/* Basic Info */}
-             <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1.5">Nombre</label>
+             <div className="space-y-8">
+                <div className="space-y-3">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Denominación</label>
                   <input 
                     type="text" 
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
-                    placeholder="Ej: Chef Gourmet"
+                    className="w-full glass-light border border-white/10 rounded-2xl px-6 py-4 text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-lg font-bold placeholder:text-slate-700"
+                    placeholder="Escribe un nombre..."
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                   />
-                  {errors.name && <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.name}</p>}
+                  {errors.name && <p className="text-red-400 text-[10px] mt-2 font-black uppercase tracking-widest ml-1">{errors.name}</p>}
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1.5">Descripción Corta</label>
-                  <input 
-                    type="text" 
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
-                    placeholder="Ej: Experto en cocina fusión"
+                
+                <div className="space-y-3">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Esencia</label>
+                  <textarea 
+                    className="w-full glass-light border border-white/10 rounded-2xl px-6 py-4 text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none h-32 resize-none leading-relaxed text-sm placeholder:text-slate-700"
+                    placeholder="Describe el propósito de este bot..."
                     value={formData.description}
                     onChange={e => setFormData({...formData, description: e.target.value})}
                   />
-                  {errors.description && <p className="text-red-400 text-[10px] mt-1 font-medium">{errors.description}</p>}
+                  {errors.description && <p className="text-red-400 text-[10px] mt-2 font-black uppercase tracking-widest ml-1">{errors.description}</p>}
+                </div>
+
+                <div className="space-y-4">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Configuración Cuántica</label>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-5 glass-light rounded-2xl border border-white/10 group hover:border-white/20 transition-all">
+                       <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 rounded-xl bg-blue-600/10 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/10">
+                           <Globe size={20} />
+                         </div>
+                         <div>
+                            <h4 className="text-xs font-black text-white uppercase tracking-wider">Search Grounding</h4>
+                            <p className="text-[10px] text-slate-500 font-medium">Sincronización web en tiempo real.</p>
+                         </div>
+                       </div>
+                       <button 
+                        type="button"
+                        onClick={() => setFormData({...formData, useSearch: !formData.useSearch})}
+                        className={`w-14 h-7 rounded-full transition-all relative border-2 ${formData.useSearch ? 'bg-blue-600 border-white/10' : 'bg-white/5 border-white/5'}`}
+                       >
+                         <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-xl transition-all duration-300 ${formData.useSearch ? 'right-0.5' : 'left-0.5'}`} />
+                       </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <select 
+                        className="w-full glass-light border border-white/10 rounded-2xl px-5 py-4 text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none cursor-pointer text-sm font-bold appearance-none bg-no-repeat bg-[right_1.5rem_center]"
+                        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0\' stroke=\'white\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")' }}
+                        value={formData.model}
+                        onChange={e => setFormData({...formData, model: e.target.value as ModelType})}
+                      >
+                         <option value={ModelType.FLASH}>NEURON: FLASH 3.0</option>
+                         <option value={ModelType.FLASH_LITE}>NEURON: LITE PROTOCOL</option>
+                         <option value={ModelType.PRO}>NEURON: ADVANCED PRO</option>
+                         <option value={ModelType.IMAGE}>NEURON: VISUAL SYNTH</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
              </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-slate-950 rounded-2xl border border-slate-800">
-               <div className="flex items-center gap-3">
-                 <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400"><Globe size={20} /></div>
-                 <div>
-                    <h4 className="text-sm font-bold text-white">Google Search Grounding</h4>
-                    <p className="text-[11px] text-slate-500">Permite al bot buscar información real en internet.</p>
-                 </div>
-               </div>
-               <button 
-                type="button"
-                onClick={() => setFormData({...formData, useSearch: !formData.useSearch})}
-                className={`w-12 h-6 rounded-full transition-all relative ${formData.useSearch ? 'bg-blue-600' : 'bg-slate-800'}`}
-               >
-                 <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${formData.useSearch ? 'right-1' : 'left-1'}`} />
-               </button>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-1.5">Modelo Base</label>
-              <select 
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-600 outline-none cursor-pointer"
-                value={formData.model}
-                onChange={e => setFormData({...formData, model: e.target.value as ModelType})}
-              >
-                <option value={ModelType.FLASH}>Gemini 3 Flash (Recomendado)</option>
-                <option value={ModelType.FLASH_LITE}>Gemini Flash Lite (Súper Rápido)</option>
-                <option value={ModelType.PRO}>Gemini 3 Pro (Razonamiento)</option>
-                <option value={ModelType.IMAGE}>Gemini Image (Solo imágenes)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-1.5">Instrucciones de Sistema</label>
-              <textarea 
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-600 outline-none h-28 resize-none font-mono text-xs leading-relaxed"
-                placeholder="Escribe cómo quieres que se comporte el bot..."
-                value={formData.systemInstruction}
-                onChange={e => setFormData({...formData, systemInstruction: e.target.value})}
-              />
-            </div>
+          <div className="pt-6">
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Parámetros de Conducta</label>
+            <textarea 
+              className="w-full glass-light border border-white/10 rounded-3xl px-6 py-5 text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none h-44 resize-none font-mono text-[11px] leading-relaxed placeholder:text-slate-700"
+              placeholder="Inyecta instrucciones maestras aquí..."
+              value={formData.systemInstruction}
+              onChange={e => setFormData({...formData, systemInstruction: e.target.value})}
+            />
           </div>
 
           <button 
             type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-3 shadow-xl shadow-blue-600/10 mt-4"
+            className="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:scale-[1.02] active:scale-[0.98] text-white text-base font-black py-6 rounded-[2rem] transition-all flex items-center justify-center gap-4 shadow-[0_20px_50px_rgba(37,99,235,0.35)] uppercase tracking-[0.3em]"
           >
-            <Save size={20} /> {bot ? 'Actualizar Bot' : 'Guardar Bot'}
+            <Save size={24} /> {bot ? 'MODIFICAR ESTRUCTURA' : 'FORJAR ENTIDAD'}
           </button>
         </form>
       </div>

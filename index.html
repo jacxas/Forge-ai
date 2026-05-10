@@ -6,29 +6,86 @@
     <title>Forge AI</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --glass-bg: rgba(15, 23, 42, 0.4);
+        --glass-border: rgba(255, 255, 255, 0.08);
+      }
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #0f172a;
-        color: #e2e8f0;
+        background-color: #020617;
+        color: #f8fafc;
         margin: 0;
         overflow: hidden;
+      }
+      h1, h2, h3, h4, .font-display {
+        font-family: 'Outfit', sans-serif;
       }
       #root {
         height: 100vh;
         width: 100vw;
+        position: relative;
+        z-index: 10;
       }
+      
+      /* Vanguardist Mesh Background */
+      .mesh-gradient {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        overflow: hidden;
+        background: #020617;
+        pointer-events: none;
+      }
+      
+      .mesh-ball {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.15;
+      }
+      
+      .mesh-1 { width: 50vw; height: 50vw; background: #3b82f6; top: -10%; left: -10%; animation: float 20s infinite alternate; }
+      .mesh-2 { width: 40vw; height: 40vw; background: #8b5cf6; bottom: -5%; right: -5%; animation: float 25s infinite alternate-reverse; }
+      .mesh-3 { width: 30vw; height: 30vw; background: #ec4899; top: 40%; left: 60%; animation: float 18s infinite alternate; }
+      
+      @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(100px, 50px) scale(1.1); }
+      }
+
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
-        width: 6px;
+        width: 4px;
       }
       ::-webkit-scrollbar-track {
-        background: #1e293b; 
+        background: transparent; 
       }
       ::-webkit-scrollbar-thumb {
-        background: #334155; 
+        background: rgba(255, 255, 255, 0.1); 
         border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2); 
+      }
+
+      /* Glassmorphism Classes */
+      .glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+      }
+      
+      .glass-light {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
       }
     </style>
   <script type="importmap">
@@ -47,6 +104,11 @@
 </script>
 </head>
   <body>
+    <div class="mesh-gradient">
+      <div class="mesh-ball mesh-1"></div>
+      <div class="mesh-ball mesh-2"></div>
+      <div class="mesh-ball mesh-3"></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

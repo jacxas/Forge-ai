@@ -28,7 +28,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
 export const textToSpeech = async (text: string, voiceName: string = 'Kore'): Promise<string> => {
   const ai = getClient();
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-preview-tts",
+    model: "gemini-3.1-flash-tts-preview",
     contents: [{ parts: [{ text: `Lee esto con tono natural: ${text.substring(0, 1000)}` }] }],
     config: {
       responseModalities: [Modality.AUDIO],
@@ -97,23 +97,35 @@ export const streamResponse = async (
   }
 
   if (modelId === ModelType.PRO) {
-    config.thinkingConfig = { thinkingBudget: 2000 };
+    config.thinkingConfig = { includeThinkingProcess: true };
   }
 
   try {
-    const response = await ai.models.generateContent({
+    const stream = await ai.models.generateContentStream({
       model: modelId,
       contents: chatContents,
       config: config
     });
 
-    const text = response.text || "";
-    onChunk(text);
+    let fullText = "";
+    let lastChunk: any = null;
+    for await (const chunk of stream) {
+      lastChunk = chunk;
+      const parts = chunk.candidates?.[0]?.content?.parts;
+      if (parts) {
+        for (const part of parts) {
+          if (part.text) {
+            fullText += part.text;
+            onChunk(fullText);
+          }
+        }
+      }
+    }
 
-    if (useSearch && response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-      const chunks = response.candidates[0].groundingMetadata.groundingChunks
-        .filter(c => !!c.web)
-        .map(c => ({
+    if (useSearch && lastChunk?.candidates?.[0]?.groundingMetadata?.groundingChunks) {
+      const chunks = lastChunk.candidates[0].groundingMetadata.groundingChunks
+        .filter((c: any) => !!c.web)
+        .map((c: any) => ({
           web: {
             uri: c.web?.uri || "",
             title: c.web?.title || ""
@@ -122,7 +134,7 @@ export const streamResponse = async (
       onGrounding?.(chunks as GroundingChunk[]);
     }
 
-    return text;
+    return fullText;
   } catch (error) {
     console.error("Error en Gemini API:", error);
     throw error;

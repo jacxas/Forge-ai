@@ -5,6 +5,7 @@ import {
   Search, ExternalLink, X, ChevronRight, BarChart3,
   Clock, Database, RefreshCw, AlertTriangle, CheckCircle2
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { collection, query, getDocs, limit, orderBy } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { UserProfile, Bot as BotType } from '../types';
@@ -68,133 +69,146 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-transparent backdrop-blur-[100px] z-[100] flex items-center justify-center p-4">
+      <div className="glass border border-white/10 w-full max-w-6xl h-[90vh] rounded-[3rem] shadow-[0_100px_200px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-700">
         {/* Header */}
-        <header className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
-              <Shield size={24} />
+        <header className="p-10 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-[2rem] bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-[0_20px_50px_rgba(37,99,235,0.3)]">
+              <Shield size={32} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white leading-tight">Panel Administrativo</h2>
-              <p className="text-xs text-slate-500 font-mono">FORGE AI CORE ENGINE • V1.0</p>
+              <h2 className="text-4xl font-black text-white leading-tight font-display tracking-tighter uppercase">NÚCLEO MAESTRO</h2>
+              <p className="text-[10px] text-slate-500 font-mono font-bold tracking-[0.4em]">SISTEMA DE CONTROL • VERTEX V1.0</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+            className="w-14 h-14 rounded-full glass-light border border-white/10 text-slate-400 hover:text-white hover:rotate-90 transition-all flex items-center justify-center"
           >
-            <X size={24} />
+            <X size={28} />
           </button>
         </header>
 
         {/* Tabs */}
-        <div className="flex px-6 border-b border-slate-800 bg-slate-900/30">
+        <div className="flex px-10 gap-2 border-b border-white/5 bg-white/[0.01]">
           {[
-            { id: 'stats', label: 'Estadísticas', icon: BarChart3 },
-            { id: 'users', label: 'Usuarios', icon: Users },
-            { id: 'bots', label: 'Explorador de Bots', icon: Bot },
+            { id: 'stats', label: 'ANÁLITICA', icon: BarChart3 },
+            { id: 'users', label: 'USUARIOS', icon: Users },
+            { id: 'bots', label: 'EXPLORADOR', icon: Bot },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-6 py-4 text-sm font-bold transition-all border-b-2 ${
+              className={`flex items-center gap-3 px-8 py-6 text-[10px] font-black tracking-[0.3em] uppercase transition-all relative ${
                 activeTab === tab.id 
-                  ? 'border-blue-500 text-white bg-blue-500/5' 
-                  : 'border-transparent text-slate-500 hover:text-slate-300'
+                  ? 'text-white' 
+                  : 'text-slate-500 hover:text-slate-300'
               }`}
             >
               <tab.icon size={16} />
               {tab.label}
+              {activeTab === tab.id && (
+                <motion.div 
+                  layoutId="adminTabLine" 
+                  className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500" 
+                />
+              )}
             </button>
           ))}
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-slate-950/50">
+        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
           {loading ? (
-            <div className="h-full flex flex-col items-center justify-center gap-4">
-              <RefreshCw className="text-blue-500 animate-spin" size={32} />
-              <p className="text-slate-500 font-mono text-xs animate-pulse">Sincronizando con Forge DB...</p>
+            <div className="h-full flex flex-col items-center justify-center gap-8">
+              <div className="w-20 h-20 rounded-[2rem] glass flex items-center justify-center border border-white/5 shadow-2xl">
+                <RefreshCw className="text-blue-500 animate-spin" size={40} />
+              </div>
+              <p className="text-slate-500 font-mono text-xs font-bold tracking-[0.5em] animate-pulse">SINCRONIZANDO NÚCLEO...</p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-10">
               {activeTab === 'stats' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                   {/* Stat Cards */}
-                  <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+                  <div className="p-8 rounded-[3rem] glass-light border border-white/5 space-y-6 hover:border-white/20 transition-all group">
                     <div className="flex items-center justify-between">
-                      <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-400">
-                        <Users size={24} />
+                      <div className="p-4 rounded-2xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition-transform">
+                        <Users size={32} />
                       </div>
-                      <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">+12%</span>
+                      <span className="text-[9px] font-black bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full uppercase tracking-widest">+12%</span>
                     </div>
                     <div>
-                      <div className="text-3xl font-black text-white">{stats.totalUsers}</div>
-                      <div className="text-slate-500 text-xs font-medium">Usuarios Registrados</div>
+                      <div className="text-5xl font-black text-white tracking-tighter mb-2">{stats.totalUsers}</div>
+                      <div className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Entidades Activas</div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+                  <div className="p-8 rounded-[3rem] glass-light border border-white/5 space-y-6 hover:border-white/20 transition-all group">
                     <div className="flex items-center justify-between">
-                      <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400">
-                        <Bot size={24} />
+                      <div className="p-4 rounded-2xl bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform">
+                        <Bot size={32} />
                       </div>
-                      <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">Activo</span>
+                      <span className="text-[9px] font-black bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full uppercase tracking-widest">ESTABLE</span>
                     </div>
                     <div>
-                      <div className="text-3xl font-black text-white">42</div>
-                      <div className="text-slate-500 text-xs font-medium">Modelos en Despliegue</div>
+                      <div className="text-5xl font-black text-white tracking-tighter mb-2">42</div>
+                      <div className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Nodos de Inteligencia</div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+                  <div className="p-8 rounded-[3rem] glass-light border border-white/5 space-y-6 hover:border-white/20 transition-all group">
                     <div className="flex items-center justify-between">
-                      <div className={`p-3 rounded-2xl ${watchdog?.lastStatus === 'OK' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                        {watchdog?.lastStatus === 'OK' ? <CheckCircle2 size={24} /> : <AlertTriangle size={24} />}
+                      <div className={`p-4 rounded-2xl group-hover:scale-110 transition-transform ${watchdog?.lastStatus === 'OK' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                        {watchdog?.lastStatus === 'OK' ? <CheckCircle2 size={32} /> : <AlertTriangle size={32} />}
                       </div>
-                      <span className={`text-[10px] ${watchdog?.lastStatus === 'OK' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'} px-2 py-0.5 rounded-full uppercase font-bold tracking-tighter`}>
-                        {watchdog?.lastStatus === 'OK' ? 'SISTEMA ONLINE' : 'INCIDENTE'}
+                      <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] ${watchdog?.lastStatus === 'OK' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {watchdog?.lastStatus === 'OK' ? 'ONLINE' : 'INCIDENTE'}
                       </span>
                     </div>
                     <div>
-                      <div className="text-3xl font-black text-white">{watchdog?.lastStatus === 'OK' ? 'Saludable' : 'Fallo'}</div>
-                      <div className="text-slate-500 text-xs font-medium">Estado del Watchdog</div>
+                      <div className="text-5xl font-black text-white tracking-tighter mb-2">{watchdog?.lastStatus === 'OK' ? 'NORMAL' : 'FALLO'}</div>
+                      <div className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Salud del Watchdog</div>
                     </div>
                   </div>
 
                   {/* System Log */}
-                  <div className="md:col-span-3 bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-sm">
-                    <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/20">
-                      <div className="flex items-center gap-2">
-                        <Activity size={16} className="text-blue-500" />
-                        <h3 className="font-bold text-white text-sm uppercase tracking-wider">Monitor de Autoreparación (Logs en Vivo)</h3>
+                  <div className="md:col-span-3 glass border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl">
+                    <div className="px-10 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                      <div className="flex items-center gap-4">
+                        <Activity size={20} className="text-blue-500" />
+                        <h3 className="font-black text-white tracking-[0.2em] uppercase text-[10px]">MONITOR DE AUTORREPARACIÓN</h3>
                       </div>
-                      <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
+                      <div className="flex items-center gap-6 text-[9px] font-bold font-mono text-slate-500 tracking-widest">
                         {watchdog?.isHealing && (
-                          <div className="flex items-center gap-2 text-orange-400 animate-pulse mr-4">
-                            <RefreshCw size={12} className="animate-spin" />
-                            REPARANDO...
+                          <div className="flex items-center gap-3 text-orange-400 animate-pulse">
+                            <RefreshCw size={14} className="animate-spin" />
+                            REPARANDO ESTRUCTURA...
                           </div>
                         )}
-                        <Clock size={14} />
+                        <span className="flex items-center gap-2">
+                           <Clock size={16} className="text-white/20" />
+                           TIEMPO REAL
+                        </span>
                       </div>
                     </div>
-                    <div className="p-4 font-mono text-[11px] space-y-2 h-40 overflow-y-auto bg-slate-950/40 custom-scrollbar">
+                    <div className="p-8 font-mono text-[11px] space-y-4 h-60 overflow-y-auto bg-black/20 custom-scrollbar">
                        {watchdog?.history.length === 0 ? (
-                         <p className="text-slate-600 italic">No hay eventos registrados recientemente.</p>
+                         <p className="text-slate-600 italic tracking-[0.1em]">Esperando eventos de sistema...</p>
                        ) : (
                          watchdog?.history.map((log, idx) => (
-                           <div key={idx} className="flex gap-4 group animate-in slide-in-from-left-2 duration-200">
-                             <span className="text-slate-600 shrink-0">[{new Date(log.time).toLocaleTimeString()}]</span>
-                             <span className={`${
-                               log.event.includes('Fallo') ? 'text-red-400' : 
-                               log.event.includes('recuperado') ? 'text-emerald-400' : 
-                               log.event.includes('Iniciando') ? 'text-orange-400' : 
-                               'text-blue-400'
-                             } font-bold shrink-0 min-w-[80px]`}>{log.event.split(':')[0]}</span>
-                             <span className="text-slate-300 group-hover:text-white transition-colors">{log.event.includes(':') ? log.event.split(':')[1] : log.event}</span>
+                           <div key={idx} className="flex gap-6 group animate-in slide-in-from-left-4 duration-500 items-start">
+                             <span className="text-slate-600 shrink-0 font-bold tracking-tighter">[{new Date(log.time).toLocaleTimeString()}]</span>
+                             <div className="flex flex-col gap-1 flex-1">
+                                <span className={`${
+                                  log.event.includes('Fallo') ? 'text-red-400' : 
+                                  log.event.includes('recuperado') ? 'text-emerald-400' : 
+                                  log.event.includes('Iniciando') ? 'text-orange-400' : 
+                                  'text-blue-400'
+                                } font-black tracking-widest text-[9px] uppercase`}>{log.event.split(':')[0]}</span>
+                                <span className="text-slate-400 group-hover:text-white transition-colors leading-relaxed">{log.event.includes(':') ? log.event.split(':')[1] : log.event}</span>
+                             </div>
                            </div>
                          ))
                        )}
@@ -204,40 +218,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               )}
 
               {activeTab === 'users' && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 bg-slate-900 border border-slate-800 p-3 rounded-2xl">
-                    <Search className="text-slate-500" size={18} />
+                <div className="space-y-8 animate-in fade-in duration-700">
+                  <div className="flex items-center gap-6 glass-light border border-white/10 p-6 rounded-[2rem] shadow-xl group">
+                    <Search className="text-slate-500 group-hover:text-blue-400 transition-colors" size={24} />
                     <input 
                       type="text" 
-                      placeholder="Buscar usuarios por email o nombre..." 
-                      className="bg-transparent border-none focus:ring-0 text-white placeholder-slate-600 text-sm w-full"
+                      placeholder="Identificar usuario por parámetro..." 
+                      className="bg-transparent border-none focus:ring-0 text-white placeholder-slate-700 text-lg w-full font-light"
                     />
                   </div>
 
-                  <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+                  <div className="glass border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-800 bg-slate-950/20">
-                          <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Usuario</th>
-                          <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Email</th>
-                          <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Registrado</th>
-                          <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Acciones</th>
+                        <tr className="border-b border-white/5 bg-white/[0.02]">
+                          <th className="px-10 py-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">ENTIDAD</th>
+                          <th className="px-10 py-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">IDENTIFICADOR</th>
+                          <th className="px-10 py-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">GÉNESIS</th>
+                          <th className="px-10 py-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] text-right">ACCESO</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800">
+                      <tbody className="divide-y divide-white/5">
                         {users.map((user) => (
-                          <tr key={user.uid} className="hover:bg-slate-800/30 transition-colors">
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-3">
-                                <img src={user.photoURL || ''} className="w-8 h-8 rounded-lg" alt="" />
-                                <span className="text-sm font-medium text-white">{user.displayName || 'Anónimo'}</span>
+                          <tr key={user.uid} className="hover:bg-white/[0.02] transition-colors group">
+                            <td className="px-10 py-8">
+                              <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 rounded-2xl overflow-hidden glass border border-white/10 group-hover:border-blue-500 transition-all">
+                                   <img src={user.photoURL || ''} className="w-full h-full object-cover" alt="" />
+                                </div>
+                                <span className="text-base font-black text-white tracking-tight uppercase">{user.displayName || 'ENTIDAD ANÓNIMA'}</span>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-slate-400 font-mono">{user.email}</td>
-                            <td className="px-6 py-4 text-xs text-slate-500">{new Date(user.createdAt).toLocaleDateString()}</td>
-                            <td className="px-6 py-4 text-right">
-                              <button className="p-2 text-slate-500 hover:text-white transition-colors">
-                                <ExternalLink size={16} />
+                            <td className="px-10 py-8 text-sm text-slate-500 font-mono tracking-tighter">{user.email}</td>
+                            <td className="px-10 py-8 text-[11px] text-slate-600 font-bold uppercase">{new Date(user.createdAt).toLocaleDateString()}</td>
+                            <td className="px-10 py-8 text-right">
+                              <button className="w-10 h-10 rounded-xl glass-light border border-white/10 text-slate-500 hover:text-white flex items-center justify-center transition-all ml-auto">
+                                <ExternalLink size={18} />
                               </button>
                             </td>
                           </tr>
@@ -249,16 +265,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               )}
 
               {activeTab === 'bots' && (
-                <div className="h-full flex flex-col items-center justify-center text-center p-12 space-y-4">
-                   <div className="w-20 h-20 rounded-3xl bg-slate-900 flex items-center justify-center text-slate-700 border-2 border-dashed border-slate-800">
-                     <Bot size={40} />
+                <div className="h-96 flex flex-col items-center justify-center text-center p-12 space-y-10 animate-in fade-in duration-700">
+                   <div className="w-32 h-32 rounded-[3.5rem] glass flex items-center justify-center text-slate-700 border-2 border-dashed border-white/10 relative group">
+                      <div className="absolute inset-0 bg-blue-500/5 rounded-[3.5rem] blur-2xl group-hover:bg-blue-500/10 transition-all"></div>
+                      <Bot size={48} className="relative z-10" />
                    </div>
-                   <div>
-                     <h3 className="text-white font-bold">Listado Global de Bots</h3>
-                     <p className="text-slate-500 text-sm max-w-xs mx-auto">Esta función requiere que realices una consulta a través de todas las subcolecciones de usuarios.</p>
+                   <div className="space-y-4">
+                     <h3 className="text-4xl font-black text-white font-display tracking-tight uppercase">ESCANEO DE NODOS</h3>
+                     <p className="text-slate-500 text-xl font-light max-w-lg mx-auto leading-relaxed">
+                       Sincroniza el mapa global de inteligencia a través de las mallas de datos del servidor.
+                     </p>
                    </div>
-                   <button className="px-6 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-500 transition-colors">
-                     Escanear Subcolecciones
+                   <button className="px-12 py-5 rounded-[2rem] bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-blue-500 transition-all shadow-2xl active:scale-95 shadow-blue-600/30">
+                     INICIAR ESCANEO DE MALLA
                    </button>
                 </div>
               )}
@@ -267,12 +286,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         </div>
 
         {/* Footer */}
-        <footer className="p-6 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-600 font-mono">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1"><Database size={10} /> FIREBASE_CONNECTED</span>
-            <span className="flex items-center gap-1"><Shield size={10} /> ADMIN_SESSION_SECURE</span>
+        <footer className="p-8 border-t border-white/5 flex items-center justify-between text-[9px] text-slate-600 font-mono font-bold tracking-[0.4em] bg-white/[0.01]">
+          <div className="flex items-center gap-10">
+            <span className="flex items-center gap-3 text-emerald-500/60"><Database size={14} /> FORGE_LINK_ACTIVE</span>
+            <span className="flex items-center gap-3 text-blue-500/60"><Shield size={14} /> SESSION_PROTOCOL_ENCRYPTED</span>
           </div>
-          <div>© 2026 FORGE AI ADMIN PANEL</div>
+          <div className="opacity-40">© 2026 FORGE AI ADMINISTRATIVE CORE</div>
         </footer>
       </div>
     </div>

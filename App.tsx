@@ -432,15 +432,16 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-100 selection:bg-blue-500/30">
+    <div className="flex h-screen overflow-hidden bg-transparent text-slate-100 selection:bg-blue-500/30 font-sans">
       {!user && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
-            <div className="w-20 h-20 bg-blue-600 rounded-3xl mx-auto mb-6 flex items-center justify-center text-white shadow-xl shadow-blue-600/20">
-              <LogOut size={40} className="rotate-180" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-3xl px-4">
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 p-10 rounded-[3rem] shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2rem] mx-auto mb-8 flex items-center justify-center text-white shadow-2xl shadow-blue-500/20 rotate-3 transition-transform hover:rotate-0">
+              <LogOut size={48} className="rotate-180" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Bienvenido a Forge AI</h2>
-            <p className="text-slate-400 mb-8">Inicia sesión para guardar tus bots y conversaciones en la nube.</p>
+            <h2 className="text-3xl font-black mb-3 tracking-tight text-white font-display">FORGE AI</h2>
+            <p className="text-slate-400 mb-10 leading-relaxed">Esculpe ideas. Transforma realidades. <br />Desbloquea el poder de la creación ilimitada.</p>
             
             {authError && (
               <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm animate-in fade-in slide-in-from-top-2">
@@ -451,7 +452,7 @@ const App: React.FC = () => {
             <button 
               onClick={handleSignIn}
               disabled={isSigningIn}
-              className={`w-full bg-white text-black font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-3 transition-all ${isSigningIn ? 'opacity-50 cursor-not-allowed scale-95' : 'hover:bg-slate-200 active:scale-95'}`}
+              className={`w-full bg-white text-black font-black py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all uppercase tracking-widest text-xs ${isSigningIn ? 'opacity-50 cursor-not-allowed scale-95' : 'hover:bg-slate-200 active:scale-95 shadow-xl hover:shadow-white/10'}`}
             >
               {isSigningIn ? (
                 <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -464,10 +465,10 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <div className="md:hidden fixed top-4 left-4 z-40">
+      <div className="md:hidden fixed top-6 left-6 z-40">
         <button 
           onClick={() => setSidebarOpen(true)}
-          className="bg-slate-900 border border-slate-800 p-2 rounded-xl text-slate-200 shadow-2xl"
+          className="glass p-3 rounded-2xl text-slate-200 shadow-2xl"
         >
           <Menu size={24} />
         </button>
