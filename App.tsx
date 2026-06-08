@@ -9,7 +9,7 @@ import { DEFAULT_BOTS } from './constants';
 import { Bot, ChatSession, Message, BotFormData, ModelType, UserProfile } from './types';
 import { streamResponse, generateImage } from './services/geminiService';
 import { Menu, LogIn, LogOut, Settings } from 'lucide-react';
-import { auth, db, signInWithGoogle, handleFirestoreError, OperationType } from './lib/firebase';
+import { auth, db, signInWithGoogle, completeGoogleRedirectSignIn, handleFirestoreError, OperationType } from './lib/firebase';
 import { compressImage } from './lib/imageUtils';
 import { SettingsModal } from './components/SettingsModal';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -54,6 +54,12 @@ const App: React.FC = () => {
 
   // Monitor Auth State
   useEffect(() => {
+    completeGoogleRedirectSignIn().catch((error) => {
+      console.error("Error completing Google redirect sign in:", error);
+      setAuthError('No se pudo completar el inicio de sesión. Inténtalo de nuevo.');
+      setLoading(false);
+    });
+
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       if (!u) {

@@ -1,6 +1,6 @@
 
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, collection, query, where, onSnapshot, addDoc, deleteDoc, getDocs, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -9,6 +9,20 @@ export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+const saveUserProfile = async (user: User) => {
+  await setDoc(doc(db, 'users', user.uid), {
+    uid: user.uid,
+    email: user.email || '',
+    displayName: user.displayName || user.email?.split('@')[0] || 'Usuario',
+    photoURL: user.photoURL || null,
+    updatedAt: Date.now(),
+    settings: {
+      accentColor: 'blue',
+      language: 'es'
+    }
+  }, { merge: true });
+};
 
 export enum OperationType {
   CREATE = 'create',
@@ -74,23 +88,25 @@ export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-    
-    // Save/Update user profile
-    await setDoc(doc(db, 'users', user.uid), {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      updatedAt: Date.now(),
-      settings: {
-        accentColor: 'blue',
-        language: 'es'
-      }
-    }, { merge: true });
+    await saveUserProfile(user);
     
     return user;
   } catch (error) {
+    const code = typeof error === 'object' && error !== null && 'code' in error ? (error as { code?: string }).code : null;
+    if (code === 'auth/popup-blocked' || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+      await signInWithRedirect(auth, googleProvider);
+      return null;
+    }
+
     console.error("Error signing in with Google", error);
     throw error;
   }
+};
+
+export const completeGoogleRedirectSignIn = async () => {
+  const result = await getRedirectResult(auth);
+  if (!result?.user) return null;
+
+  await saveUserProfile(result.user);
+  return result.user;
 };
