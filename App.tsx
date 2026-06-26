@@ -9,7 +9,7 @@ import { DEFAULT_BOTS } from './constants';
 import { Bot, ChatSession, Message, BotFormData, ModelType, UserProfile } from './types';
 import { streamResponse, generateImage } from './services/geminiService';
 import { Menu, LogIn, LogOut, Settings } from 'lucide-react';
-import { auth, db, signInWithGoogle, handleFirestoreError, OperationType } from './lib/firebase';
+import { auth, db, signInWithGoogle, completeGoogleRedirectSignIn, getAuthErrorMessage, handleFirestoreError, OperationType } from './lib/firebase';
 import { compressImage } from './lib/imageUtils';
 import { SettingsModal } from './components/SettingsModal';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -54,6 +54,12 @@ const App: React.FC = () => {
 
   // Monitor Auth State
   useEffect(() => {
+    completeGoogleRedirectSignIn().catch((error) => {
+      console.error("Error completing Google redirect sign in:", error);
+      setAuthError(getAuthErrorMessage(error));
+      setLoading(false);
+    });
+
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       if (!u) {
@@ -244,17 +250,9 @@ const App: React.FC = () => {
     setAuthError(null);
     try {
       await signInWithGoogle();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Login failed:", error);
-      if (error.code === 'auth/popup-closed-by-user') {
-        setAuthError('La ventana de acceso fue cerrada. Por favor, intenta de nuevo.');
-      } else if (error.code === 'auth/cancelled-by-user') {
-        setAuthError('El inicio de sesión fue cancelado.');
-      } else if (error.code === 'auth/popup-blocked') {
-        setAuthError('El navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes para este sitio.');
-      } else {
-        setAuthError('Ocurrió un error al iniciar sesión. Inténtalo de nuevo.');
-      }
+      setAuthError(getAuthErrorMessage(error));
     } finally {
       setIsSigningIn(false);
     }
